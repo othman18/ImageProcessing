@@ -69,6 +69,7 @@ public class EnergyFunctions {
 class Cell {
 	int red = -1, green = -1, blue = -1;
 	double energy = -1;
+	double M=-1;//this will be used for the dynamical programming computation
 
 	void setRGB(int pixel) {
 		red = (pixel >> 16) & 0xff;
