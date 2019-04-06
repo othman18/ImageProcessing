@@ -1,5 +1,5 @@
 import java.awt.image.BufferedImage;
-
+import java.lang.Math;
 public class EnergyFunctions {
 
 	Cell[][] cellMatrix;
@@ -18,16 +18,15 @@ public class EnergyFunctions {
 			}
 		}
 	}
-	
+
 	public void printer() {
-		for (int i = 0; i < rows+2; i++) {
-			for (int j = 0; j < cols+2; j++) {
-				System.out.print(cellMatrix[j][i]+"\t\t");
+		for (int i = 0; i < rows + 2; i++) {
+			for (int j = 0; j < cols + 2; j++) {
+				System.out.print(cellMatrix[j][i] + "\t\t");
 			}
 			System.out.println();
 		}
 	}
-
 
 	void calculateEnergy(int x, int y) {
 		if (!caclculatedCellsAlready) {
@@ -73,17 +72,74 @@ public class EnergyFunctions {
 		}
 
 	}
-}
 
+/*---------------------start of Entropy functions-----------------------*/
+	void calculateCellEntropy() {//call this function after calculating the energy
+		/*
+		 * for each cell we will calculate the pValue and then adding the
+		 * entropy
+		 */
+		//the pvalue
+		for (int x = 1; x <= cols; x++) {
+			for (int y = 1; y <= rows; y++) {
+				calculate_PValue(x, y);
+			}
+		}
+		//adding the entropy after we computed the pvalue
+		for (int x = 1; x <= cols; x++) {
+			for (int y = 1; y <= rows; y++) {
+				cellMatrix[x][y].energy+=entropy(x,y);
+			}
+		}
+
+	}
+
+	private double entropy(int col, int row) {
+		double entropy=0.0;
+		double p;
+		int counter = 0; // ??????????????????? check if must be (normalization)
+		for (int x = col - 4; x <= col + 4; x++) {
+			for (int y = row - 4; y <= row + 4; y++) {
+				if ((x >= 1 && x <= cols) && (y >= 1 && y <= rows)) {
+					counter++;// ????????????
+					p=cellMatrix[x][y].p;
+					entropy += cellMatrix[x][y].p*(Math.log(p));
+				}
+			}
+		}
+		entropy=entropy/counter;//?????????????????????
+		return (entropy*-1);
+	}
+
+	private void calculate_PValue(int col, int row) {
+		double p = 0.0;
+		int counter = 0; // ??????????????????? check if must be (normalization)
+		for (int x = col - 4; x <= col + 4; x++) {
+			for (int y = row - 4; y <= row + 4; y++) {
+				if ((x >= 1 && x <= cols) && (y >= 1 && y <= rows)) {
+					counter++;// ????????????
+					p += cellMatrix[x][y].f;
+				}
+			}
+		}
+		p = p / counter;// ????????????????????????
+		p = (cellMatrix[col][row].f) / p;
+		cellMatrix[col][row].p = p;
+	}
+}
+/*---------------------End of Entropy functions-----------------------*/
 class Cell {
 	int red = -1, green = -1, blue = -1;
 	double energy = -1;
 	double M = -1;// this will be used for the dynamic programming computation
+	double f = -1;// this is the greyscale for a pixel
+	double p = -1; // this is for the entropy
 
 	void setRGB(int pixel) {
 		red = (pixel >> 16) & 0xff;
 		green = (pixel >> 8) & 0xff;
 		blue = pixel & 0xff;
+		f = ((double) (red + green + blue)) / 3;
 	}
 
 	void setEnergy(double energy) {
@@ -91,7 +147,7 @@ class Cell {
 	}
 
 	public String toString() {
-		return "(" + M+","+energy+")";
+		return "(" + M + "," + energy + ")";
 
 	}
 }
