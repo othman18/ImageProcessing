@@ -35,7 +35,7 @@ public class exec {
 		File inputFile = null;
 		try {
 
-			inputFile = new File("/Users/othman/Downloads/image_test/dude.jpg");
+			inputFile = new File("/Users/othman/Downloads/image_test/test.jpeg");
 			image = ImageIO.read(inputFile);
 			System.out.println("Reading complete.");
 
@@ -54,22 +54,17 @@ public class exec {
 		aa.colorSeam(s.coors, image);
 		// write image
 		try {
-			inputFile = new File("/Users/othman/Downloads/image_test/out.jpg");
-			ImageIO.write(image, "jpg", inputFile);
-			inputFile = new File("/Users/othman/Downloads/image_test/removedSeam.jpg");
-			for(int i = 0; i< 50;i++) {
-				aa.colorSeam(s.coors, image);
-				inputFile = new File("/Users/othman/Downloads/image_test/colorout"+i+".jpg");
-				ImageIO.write(image, "jpg", inputFile);
-				image = aa.removeVerticalSeam(s.coors, image);
-				inputFile = new File("/Users/othman/Downloads/image_test/out"+i+".jpg");
-				ImageIO.write(image, "jpg", inputFile);
-				aa = new EnergyFunctions(image.getWidth(), image.getHeight());
-				aa.calculateCells(image);
-				s = new seamCalculate(aa, seamShape.general);
-				s.updateSeam();
+			inputFile = new File("/Users/othman/Downloads/image_test/out.jpeg");
+			ImageIO.write(image, "jpeg", inputFile);
+			inputFile = new File("/Users/othman/Downloads/image_test/removedSeam.jpeg");
+			for (int i = 0; i < 50; i++) {
+				image = aa.removeVerticalSeam(s, image);
+				inputFile = new File("/Users/othman/Downloads/image_test/out" + i + ".jpeg");
+				ImageIO.write(image, "jpeg", inputFile);
+				System.out.println(aa.cols + " , " + aa.rows);
+
 			}
-			ImageIO.write(image, "jpg", inputFile);
+
 		} catch (IOException e) {
 			System.out.println(e);
 		}

@@ -19,6 +19,7 @@ public class EnergyFunctions {
 			}
 		}
 	}
+	
 
 	public void printer() {
 		for (int i = 0; i < rows + 2; i++) {
@@ -75,6 +76,19 @@ public class EnergyFunctions {
 	}
 
 	/*----------------------remove seam functions -----------------*/
+	public void updateEnertgy(int width, int height) {
+		cellMatrix = new Cell[width + 2][height + 2];
+
+		this.cols = width;
+		this.rows = height;
+
+		for (int x = 0; x < this.cols + 2; x++) {
+			for (int y = 0; y < this.rows + 2; y++) {
+				cellMatrix[x][y] = new Cell();
+			}
+		}
+	}
+	
 	public void colorSeam(Coordinates[] coor, BufferedImage img) {
 		for (Coordinates c : coor) {
 			img.setRGB(c.col, c.row, 0xFFFF33);
@@ -82,9 +96,10 @@ public class EnergyFunctions {
 		System.out.println("colored seam");
 	}
 
-	public BufferedImage removeVerticalSeam(Coordinates[] coor, BufferedImage img) {
+	public BufferedImage removeVerticalSeam(seamCalculate s, BufferedImage img) {
 		BufferedImage bufferedImage = new BufferedImage(img.getWidth() - 1, img.getHeight(),
 				BufferedImage.TYPE_INT_RGB);
+		Coordinates coor[] = s.coors;
 		// coor would be from bottom to top
 		int counter = 0, bias = 0;
 		for (int y = img.getHeight() - 1; y >= 0; y--) {
@@ -97,6 +112,10 @@ public class EnergyFunctions {
 			bias = 0;
 			counter++;
 		}
+		new EnergyFunctions(img.getWidth(), img.getHeight());
+		updateEnertgy(img.getWidth(), img.getHeight());
+		calculateCells(img);
+		s.updateSeam();
 		System.out.println("removed vertical seam");
 		return bufferedImage;
 	}
