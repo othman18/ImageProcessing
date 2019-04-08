@@ -132,31 +132,27 @@ public class EnergyFunctions {
 		Coordinates coor[] = s.coors;
 		// coor would be start from bottom to top
 		int counter = 0, bias = 0;
-		boolean doAverage=false;
+		boolean doAverage = false;
 		for (int y = img.getHeight() - 1; y >= 0; y--) {
 			for (int x = 0; x < img.getWidth(); x++) {
-				try {
-					if(doAverage) {
-						int avg;
-						if(x == img.getWidth()-1) {
-							 avg = averageRGB(img.getRGB(x - 1, y),img.getRGB(x - 2, y));
-						}else {
-							 avg = averageRGB(img.getRGB(x - 1, y),img.getRGB(x + 1, y));
-						}
-						bufferedImage.setRGB(x, y,avg);
-						doAverage = false;
-						if(x == img.getWidth()-1) {
-							int tmp = bufferedImage.getRGB(x-1, y);
-							bufferedImage.setRGB(x-1, y,avg);
-							bufferedImage.setRGB(x, y,tmp);
-						}
-					}else {
-						bufferedImage.setRGB(x, y, img.getRGB(x - bias, y));	
+				if (doAverage) {
+					int avg;
+					if (x == img.getWidth() - 1) {
+						avg = averageRGB(img.getRGB(x - 1, y), img.getRGB(x - 2, y));
+					} else {
+						avg = averageRGB(img.getRGB(x - 1, y), img.getRGB(x + 1, y));
 					}
-					
-				} catch (ArrayIndexOutOfBoundsException exception) {
-					System.out.println(); // used for debugging
+					bufferedImage.setRGB(x, y, avg);
+					doAverage = false;
+					if (x == img.getWidth() - 1) {
+						int tmp = bufferedImage.getRGB(x - 1, y);
+						bufferedImage.setRGB(x - 1, y, avg);
+						bufferedImage.setRGB(x, y, tmp);
+					}
+				} else {
+					bufferedImage.setRGB(x, y, img.getRGB(x - bias, y));
 				}
+
 				if (x == coor[counter].col) {
 					bias = 1; // bias would take effect at the next cell
 					doAverage = true;
@@ -173,20 +169,20 @@ public class EnergyFunctions {
 		System.out.println("added vertical seam");
 		return bufferedImage;
 	}
-	
+
 	int averageRGB(int pix1, int pix2) {
-		int x1 = (((pix1 >> 16) & 0xff)+((pix2 >> 16) & 0xff))/2; // red
-		int x2 = (((pix1 >> 8) & 0xff)+((pix2  >> 8) & 0xff))/2; // red
-		int x3 = ((pix1 & 0xff)+ (pix2 & 0xff))/2; // red
-		System.out.println("pix1="+pix1+", pix2="+pix2+", average="+x1+x2+x3);
-		
-		return (x1<<16)+(x2<<8)+x3;
+		int x1 = (((pix1 >> 16) & 0xff) + ((pix2 >> 16) & 0xff)) / 2; // red
+		int x2 = (((pix1 >> 8) & 0xff) + ((pix2 >> 8) & 0xff)) / 2; // red
+		int x3 = ((pix1 & 0xff) + (pix2 & 0xff)) / 2; // red
+		System.out.println("pix1=" + pix1 + ", pix2=" + pix2 + ", average=" + x1 + x2 + x3);
+
+		return (x1 << 16) + (x2 << 8) + x3;
 	}
 
 	public BufferedImage transposeImageRight(BufferedImage img) {
-		BufferedImage transposedImage = new BufferedImage(img.getHeight(),img.getWidth(), BufferedImage.TYPE_INT_RGB);
+		BufferedImage transposedImage = new BufferedImage(img.getHeight(), img.getWidth(), BufferedImage.TYPE_INT_RGB);
 
-		for (int y = 0;y < img.getWidth() ; y++) {
+		for (int y = 0; y < img.getWidth(); y++) {
 			for (int x = 0; x < img.getHeight(); x++) {
 				transposedImage.setRGB(x, y, img.getRGB(y, x));
 			}
