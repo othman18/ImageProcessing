@@ -115,6 +115,7 @@ public class EnergyFunctions {
 			bias = 0;
 			counter++;
 		}
+		//_________-----_____-----	functions that change the seam and matrix !!!!
 		updateEnertgy(img.getWidth(), img.getHeight());
 		calculateCells(img);
 		calculateCellEntropy();
@@ -161,6 +162,7 @@ public class EnergyFunctions {
 			bias = 0;
 			counter++;
 		}
+		//_________-----_____-----	functions that change the seam and matrix !!!!
 		updateEnertgy(img.getWidth(), img.getHeight());
 		calculateCells(img);
 		// calculateCellEntropy();
