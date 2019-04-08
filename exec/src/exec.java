@@ -12,7 +12,7 @@ import javax.imageio.ImageIO;
  * okay ask al 7j
  */
 public class exec {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		EnergyFunctions aa = new EnergyFunctions(3, 3);
 		/*
 		 * aa.cellMatrix[1][1].setRGB(0xf); aa.cellMatrix[1][2].setRGB(0x0);
@@ -42,6 +42,7 @@ public class exec {
 
 			e.printStackTrace();
 		}
+		
 		int width = image.getWidth();
 		int height = image.getHeight();
 		System.out.println(width + " , " + height);
@@ -51,18 +52,31 @@ public class exec {
 		seamCalculate s = new seamCalculate(aa, seamShape.general);
 		s.updateSeam();
 		// write image
-		try {			
-			for (int i = 0; i < 50; i++) {
+	//	try {			
+			aa.insertSeams(5, s, image);
+			inputFile = new File("/Users/othman/Downloads/image_test/out" + 400 + ".png");
+			try {
+				ImageIO.write(image, "jpeg", inputFile);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			/*for (int i = 0; i < 50; i++) {
 				image = aa.addVerticalSeam(s, image);
+				if(i==0) {
+					System.out.println(Arrays.toString(s.coors));
+				}
 				inputFile = new File("/Users/othman/Downloads/image_test/out" + i + ".png");
 				ImageIO.write(image, "jpeg", inputFile);
 				System.out.println(aa.cols + " , " + aa.rows);
-			}
+			}/**/
 			
 
-		} catch (IOException e) {
-			System.out.println(e);
-		}
+		
+//		} catch (IOException e) {
+//			System.out.println(e);
+//		}
 		System.out.println("writing complete");
 	}
 }

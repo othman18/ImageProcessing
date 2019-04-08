@@ -96,6 +96,16 @@ public class EnergyFunctions {
 		System.out.println("colored seam");
 	}
 
+	
+	public void insertSeams(int k, seamCalculate s,BufferedImage img) {
+		Coordinates[][] seams = s.pick_seams(k);
+		for(int i = 0; i<k;i++) {
+			s.coors = seams[i];
+			System.out.println(Arrays.toString(s.coors));
+			addVerticalSeam(s,img);
+		}
+	}
+	
 	public BufferedImage removeVerticalSeam(seamCalculate s, BufferedImage img) {
 		// after reaching the seam cell, we would simply remove it and continue as
 		// normal
@@ -166,7 +176,7 @@ public class EnergyFunctions {
 		updateEnertgy(img.getWidth(), img.getHeight());
 		calculateCells(img);
 		// calculateCellEntropy();
-		s.updateSeam();
+//		s.updateSeam();
 //		System.out.println(Arrays.deepToString(s.coors));
 		System.out.println("added vertical seam");
 		return bufferedImage;
@@ -176,7 +186,7 @@ public class EnergyFunctions {
 		int x1 = (((pix1 >> 16) & 0xff) + ((pix2 >> 16) & 0xff)) / 2; // red
 		int x2 = (((pix1 >> 8) & 0xff) + ((pix2 >> 8) & 0xff)) / 2; // red
 		int x3 = ((pix1 & 0xff) + (pix2 & 0xff)) / 2; // red
-		System.out.println("pix1=" + pix1 + ", pix2=" + pix2 + ", average=" + x1 + x2 + x3);
+		//System.out.println("pix1=" + pix1 + ", pix2=" + pix2 + ", average=" + x1 + x2 + x3);
 
 		return (x1 << 16) + (x2 << 8) + x3;
 	}
