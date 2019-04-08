@@ -42,38 +42,35 @@ public class exec {
 
 			e.printStackTrace();
 		}
-		
+
 		int width = image.getWidth();
 		int height = image.getHeight();
 		System.out.println(width + " , " + height);
 		aa = new EnergyFunctions(width, height);
 		aa.calculateCells(image);
-
 		seamCalculate s = new seamCalculate(aa, seamShape.general);
 		s.updateSeam();
 		// write image
-	//	try {			
-			aa.insertSeams(5, s, image);
-			inputFile = new File("/Users/othman/Downloads/image_test/out" + 400 + ".png");
-			try {
-				ImageIO.write(image, "jpeg", inputFile);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		// try {
+		BufferedImage tmp;
+		tmp = aa.insertSeams(100, s, image);
+		inputFile = new File("/Users/othman/Downloads/image_test/out" + 400 + ".png");
+		try {
+			ImageIO.write(tmp, "jpeg", inputFile);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-			/*for (int i = 0; i < 50; i++) {
-				image = aa.addVerticalSeam(s, image);
-				if(i==0) {
-					System.out.println(Arrays.toString(s.coors));
-				}
+		for (int i = 0; i < 100; i++) {
+			image = aa.addVerticalSeam(s, image);
+			if (i == 99) {
 				inputFile = new File("/Users/othman/Downloads/image_test/out" + i + ".png");
 				ImageIO.write(image, "jpeg", inputFile);
 				System.out.println(aa.cols + " , " + aa.rows);
-			}/**/
-			
+			}
+		} /**/
 
-		
 //		} catch (IOException e) {
 //			System.out.println(e);
 //		}

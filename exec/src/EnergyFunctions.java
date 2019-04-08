@@ -97,13 +97,14 @@ public class EnergyFunctions {
 	}
 
 	
-	public void insertSeams(int k, seamCalculate s,BufferedImage img) {
+	public BufferedImage insertSeams(int k, seamCalculate s,BufferedImage img) {
 		Coordinates[][] seams = s.pick_seams(k);
 		for(int i = 0; i<k;i++) {
 			s.coors = seams[i];
-			System.out.println(Arrays.toString(s.coors));
-			addVerticalSeam(s,img);
+//			System.out.println(Arrays.toString(s.coors));
+			img = addVerticalSeam(s,img);
 		}
+		return img;
 	}
 	
 	public BufferedImage removeVerticalSeam(seamCalculate s, BufferedImage img) {
