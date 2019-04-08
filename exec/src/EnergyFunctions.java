@@ -1,5 +1,6 @@
 import java.awt.image.BufferedImage;
 import java.lang.Math;
+import java.util.Arrays;
 
 public class EnergyFunctions {
 
@@ -19,7 +20,6 @@ public class EnergyFunctions {
 			}
 		}
 	}
-	
 
 	public void printer() {
 		for (int i = 0; i < rows + 2; i++) {
@@ -75,7 +75,7 @@ public class EnergyFunctions {
 
 	}
 
-	/*----------------------remove seam functions -----------------*/
+	/*----------------------remove/add seam functions -----------------*/
 	public void updateEnertgy(int width, int height) {
 		cellMatrix = new Cell[width + 2][height + 2];
 
@@ -88,7 +88,7 @@ public class EnergyFunctions {
 			}
 		}
 	}
-	
+
 	public void colorSeam(Coordinates[] coor, BufferedImage img) {
 		for (Coordinates c : coor) {
 			img.setRGB(c.col, c.row, 0xFFFF33);
@@ -97,6 +97,9 @@ public class EnergyFunctions {
 	}
 
 	public BufferedImage removeVerticalSeam(seamCalculate s, BufferedImage img) {
+		// after reaching the seam cell, we would simply remove it and continue as
+		// normal
+
 		BufferedImage bufferedImage = new BufferedImage(img.getWidth() - 1, img.getHeight(),
 				BufferedImage.TYPE_INT_RGB);
 		Coordinates coor[] = s.coors;
@@ -112,14 +115,86 @@ public class EnergyFunctions {
 			bias = 0;
 			counter++;
 		}
-		new EnergyFunctions(img.getWidth(), img.getHeight());
 		updateEnertgy(img.getWidth(), img.getHeight());
 		calculateCells(img);
+		calculateCellEntropy();
 		s.updateSeam();
 		System.out.println("removed vertical seam");
 		return bufferedImage;
 	}
-	/*---------------------- end of remove seam functions -----------------*/
+
+	public BufferedImage addVerticalSeam(seamCalculate s, BufferedImage img) {
+		// after reaching the seam cell, we would simply replicate it and continue as
+		// normal
+		// the replica would take the extra cell that was created
+		BufferedImage bufferedImage = new BufferedImage(img.getWidth() + 1, img.getHeight(),
+				BufferedImage.TYPE_INT_RGB);
+		Coordinates coor[] = s.coors;
+		// coor would be start from bottom to top
+		int counter = 0, bias = 0;
+		boolean doAverage=false;
+		for (int y = img.getHeight() - 1; y >= 0; y--) {
+			for (int x = 0; x < img.getWidth(); x++) {
+				try {
+					if(doAverage) {
+						int avg;
+						if(x == img.getWidth()-1) {
+							 avg = averageRGB(img.getRGB(x - 1, y),img.getRGB(x - 2, y));
+						}else {
+							 avg = averageRGB(img.getRGB(x - 1, y),img.getRGB(x + 1, y));
+						}
+						bufferedImage.setRGB(x, y,avg);
+						doAverage = false;
+						if(x == img.getWidth()-1) {
+							int tmp = bufferedImage.getRGB(x-1, y);
+							bufferedImage.setRGB(x-1, y,avg);
+							bufferedImage.setRGB(x, y,tmp);
+						}
+					}else {
+						bufferedImage.setRGB(x, y, img.getRGB(x - bias, y));	
+					}
+					
+				} catch (ArrayIndexOutOfBoundsException exception) {
+					System.out.println(); // used for debugging
+				}
+				if (x == coor[counter].col) {
+					bias = 1; // bias would take effect at the next cell
+					doAverage = true;
+				}
+			}
+			bias = 0;
+			counter++;
+		}
+		updateEnertgy(img.getWidth(), img.getHeight());
+		calculateCells(img);
+		// calculateCellEntropy();
+		s.updateSeam();
+//		System.out.println(Arrays.deepToString(s.coors));
+		System.out.println("added vertical seam");
+		return bufferedImage;
+	}
+	
+	int averageRGB(int pix1, int pix2) {
+		int x1 = (((pix1 >> 16) & 0xff)+((pix2 >> 16) & 0xff))/2; // red
+		int x2 = (((pix1 >> 8) & 0xff)+((pix2  >> 8) & 0xff))/2; // red
+		int x3 = ((pix1 & 0xff)+ (pix2 & 0xff))/2; // red
+		System.out.println("pix1="+pix1+", pix2="+pix2+", average="+x1+x2+x3);
+		
+		return (x1<<16)+(x2<<8)+x3;
+	}
+
+	public BufferedImage transposeImageRight(BufferedImage img) {
+		BufferedImage transposedImage = new BufferedImage(img.getHeight(),img.getWidth(), BufferedImage.TYPE_INT_RGB);
+
+		for (int y = 0;y < img.getWidth() ; y++) {
+			for (int x = 0; x < img.getHeight(); x++) {
+				transposedImage.setRGB(x, y, img.getRGB(y, x));
+			}
+		}
+		return transposedImage;
+	}
+
+	/*---------------------- end of remove/add seam functions -----------------*/
 
 	/*---------------------start of Entropy functions-----------------------*/
 	void calculateCellEntropy() {// call this function after calculating the energy

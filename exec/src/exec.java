@@ -6,12 +6,11 @@ import java.util.Arrays;
 import javax.imageio.ImageIO;
 
 /*
- * othman's notes 6.4.19
- * update seam does not work when we trim an image, or add anything to it.
- * we should make the energy function obj dynamic or we would have to create a new obj each time
- * we remove a seam. (see example below)
  * 
- * */
+ * othman's notes 8.4.19
+ * adding the seam is somewhat buggy because it duplicates the same seam each time... I think this is
+ * okay ask al 7j
+ */
 public class exec {
 	public static void main(String[] args) {
 		EnergyFunctions aa = new EnergyFunctions(3, 3);
@@ -35,7 +34,7 @@ public class exec {
 		File inputFile = null;
 		try {
 
-			inputFile = new File("/Users/othman/Downloads/image_test/test.jpeg");
+			inputFile = new File("/Users/othman/Downloads/image_test/test.png");
 			image = ImageIO.read(inputFile);
 			System.out.println("Reading complete.");
 
@@ -51,19 +50,15 @@ public class exec {
 
 		seamCalculate s = new seamCalculate(aa, seamShape.general);
 		s.updateSeam();
-		aa.colorSeam(s.coors, image);
 		// write image
-		try {
-			inputFile = new File("/Users/othman/Downloads/image_test/out.jpeg");
-			ImageIO.write(image, "jpeg", inputFile);
-			inputFile = new File("/Users/othman/Downloads/image_test/removedSeam.jpeg");
+		try {			
 			for (int i = 0; i < 50; i++) {
-				image = aa.removeVerticalSeam(s, image);
-				inputFile = new File("/Users/othman/Downloads/image_test/out" + i + ".jpeg");
+				image = aa.addVerticalSeam(s, image);
+				inputFile = new File("/Users/othman/Downloads/image_test/out" + i + ".png");
 				ImageIO.write(image, "jpeg", inputFile);
 				System.out.println(aa.cols + " , " + aa.rows);
-
 			}
+			
 
 		} catch (IOException e) {
 			System.out.println(e);
