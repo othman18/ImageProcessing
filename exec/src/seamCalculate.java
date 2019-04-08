@@ -1,3 +1,4 @@
+import java.util.Arrays;
 
 /*aubaida's notes 31/3/19 at 2:58 PM
  * 1)check if the access to the (cell[i+1][j+1]; from i=0 ;to i=(col-1)) is okk !! 
@@ -80,19 +81,20 @@ public class seamCalculate {
 		} // found the sim's start (from the bottom)
 		coors[coors_index].col = min_index;
 		coors[coors_index].row = rows - 1;
-		//System.out.println("current="+currCell+", x="+min_index+", y="+row_index);
+		// System.out.println("current="+currCell+", x="+min_index+",
+		// y="+row_index);
 		coors_index++;
 		row_index--;
-
-		while (row_index >= 0) {
+		updateCoors(coors);
+	/*	while (row_index >= 0) {
 			x = coors[coors_index - 1].col;
 			y = coors[coors_index - 1].row;
 			currCell = energyObj.cellMatrix[x + 1][y + 1];
 			upLeftCell = energyObj.cellMatrix[x][y];
 			upCell = energyObj.cellMatrix[x + 1][y];
 			upRightCell = energyObj.cellMatrix[x + 2][y];
-			System.out.println("current="+currCell+", x="+x+", y="+y);
-			
+			System.out.println("current=" + currCell + ", x=" + x + ", y=" + y);
+
 			coors[coors_index].row = row_index;
 			if (x == 0) {// first col
 				if (min(upCell.M, upRightCell.M) == upCell.M) {
@@ -101,7 +103,54 @@ public class seamCalculate {
 					coors[coors_index].col = 1;
 				}
 			} else if (x == cols - 1) {// last col
-				
+
+				if (min(upCell.M, upLeftCell.M) == upCell.M) {
+					coors[coors_index].col = cols - 1;
+				} else {
+					coors[coors_index].col = cols - 2;
+				}
+			} else {
+				if (min(upCell.M, min(upLeftCell.M, upRightCell.M)) == upCell.M) {
+					coors[coors_index].col = x;
+				} else if (min(upRightCell.M, upLeftCell.M) == upRightCell.M) {
+					coors[coors_index].col = x + 1;
+				} else {
+					coors[coors_index].col = x - 1;
+				}
+			}
+			coors_index++;
+			row_index--;
+		}*/
+
+	}
+
+	private double min(double m1, double m2) {
+		if (m1 > m2)
+			return m2;
+		return m1;
+	}
+	public void updateCoors(Coordinates[] coors){
+		int x,y,row_index=energyObj.rows-2,coors_index=1;
+		Cell currCell = null, upLeftCell = null, upCell = null, upRightCell = null;
+		int cols=energyObj.cols;
+		while (row_index >= 0) {
+			x = coors[coors_index - 1].col;
+			y = coors[coors_index - 1].row;
+			currCell = energyObj.cellMatrix[x + 1][y + 1];
+			upLeftCell = energyObj.cellMatrix[x][y];
+			upCell = energyObj.cellMatrix[x + 1][y];
+			upRightCell = energyObj.cellMatrix[x + 2][y];
+			System.out.println("current=" + currCell + ", x=" + x + ", y=" + y);
+
+			coors[coors_index].row = row_index;
+			if (x == 0) {// first col
+				if (min(upCell.M, upRightCell.M) == upCell.M) {
+					coors[coors_index].col = 0;
+				} else {
+					coors[coors_index].col = 1;
+				}
+			} else if (x == cols - 1) {// last col
+
 				if (min(upCell.M, upLeftCell.M) == upCell.M) {
 					coors[coors_index].col = cols - 1;
 				} else {
@@ -119,13 +168,8 @@ public class seamCalculate {
 			coors_index++;
 			row_index--;
 		}
-		
-	}
 
-	private double min(double m1, double m2) {
-		if (m1 > m2)
-			return m2;
-		return m1;
+		
 	}
 
 	private void straightCalculation() {// **i ignored that we must start with
@@ -135,9 +179,11 @@ public class seamCalculate {
 		int cols = this.energyObj.cols;
 		Cell cell = null;
 		int index = 0;
-		double[] arrayOfSums = new double[this.energyObj.cols];// this array will
+		double[] arrayOfSums = new double[this.energyObj.cols];// this array
+																// will
 																// contain the
-																// energy sum for
+																// energy sum
+																// for
 																// each col
 		// computing for each column what is the energy sum
 		for (int x = 0; x < cols; x++) {// for each column
@@ -155,11 +201,32 @@ public class seamCalculate {
 			coors[y].col = index;
 		}
 	}
+
+	/*---------------------------------------------------------------------------*/
+	public void pick_seams(int k) {
+		Coordinates[][] seams=new Coordinates[k][energyObj.rows];
+		Coordinates[] last_row_values=new Coordinates[energyObj.cols];
+		generalCalculation();//to compute the M map
+		for(int i=0;i<k;i++){
+			for (int j = 0; j < energyObj.rows; j++) {
+				seams[i][j].col=0;
+				seams[i][j].row=0;
+			}
+			
+		}
+		for(int i=0;i<energyObj.rows;i++){//init the coordinates 
+			last_row_values[i].col=i;
+			last_row_values[i].row=energyObj.rows-1;
+			last_row_values[i].M=energyObj.cellMatrix[i+1][energyObj.rows].M;
+		}
+		Arrays.sort(last_row_values);
+	}
 }
 
-class Coordinates {
+class Coordinates implements Comparable<Coordinates> {
 	int row = -1;
 	int col = -1;
+	double M =-1;
 
 	Coordinates(int m, int n) {
 		this.row = n;
@@ -167,7 +234,13 @@ class Coordinates {
 	}
 
 	public String toString() {
-		return "[x=" + col + " ,y=" + row+"]";
+		return "[x=" + col + " ,y=" + row + "]";
 
 	}
+
+	@Override
+	public int compareTo(Coordinates O) {
+		return Double.compare(this.M,O.M);
+	}
+	
 }
