@@ -1,5 +1,7 @@
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.lang.Math;
+import java.util.Arrays;
 
 public class EnergyFunctions {
 
@@ -94,9 +96,11 @@ public class EnergyFunctions {
 	}
 
 	public BufferedImage insertSeams(int k, seamCalculate s, BufferedImage img) {
+		System.out.println("adding " + k + " vertical seam(s)");
 		Coordinates[][] seams = s.pick_seams(k);
 		for (int i = 0; i < k; i++) {
 			s.coors = seams[i];
+//			System.out.println(Arrays.toString(s.coors));
 			img = addVerticalSeam(s, img);
 		}
 		System.out.println("added " + k + " vertical seam(s)");
@@ -142,11 +146,15 @@ public class EnergyFunctions {
 		for (int y = img.getHeight() - 1; y >= 0; y--) {
 			for (int x = 0; x < img.getWidth(); x++) {
 				if (doAverage) {
-					int avg;
+					int avg=0;
 					if (x == img.getWidth() - 1) {
 						avg = averageRGB(img.getRGB(x - 1, y), img.getRGB(x - 2, y));
 					} else {
-						avg = averageRGB(img.getRGB(x - 1, y), img.getRGB(x + 1, y));
+						try {		
+							avg = averageRGB(img.getRGB(x - 1, y), img.getRGB(x + 1, y));
+						} catch (IndexOutOfBoundsException e) {
+							System.out.println(e);
+						}
 					}
 					bufferedImage.setRGB(x, y, avg);
 					doAverage = false;
@@ -164,6 +172,7 @@ public class EnergyFunctions {
 					doAverage = true;
 				}
 			}
+			doAverage=false;
 			bias = 0;
 			counter++;
 		}

@@ -3,6 +3,12 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+/*
+ * TODO
+ * parse image according to it's ending !!!!!
+ * 
+ * */
+
 public class exec {
 	public static void main(String[] args) throws IOException {
 		EnergyFunctions aa = new EnergyFunctions(3, 3);
@@ -25,8 +31,7 @@ public class exec {
 		BufferedImage image = null;
 		File inputFile = null;
 		try {
-
-			inputFile = new File("/Users/othman/Downloads/image_test/test.png");
+			inputFile = new File("/Users/othman/Downloads/image_test/1test.jpg");
 			image = ImageIO.read(inputFile);
 			System.out.println("Reading complete.");
 
@@ -36,7 +41,6 @@ public class exec {
 
 		int width = image.getWidth();
 		int height = image.getHeight();
-		System.out.println(width + " , " + height);
 		aa = new EnergyFunctions(width, height);
 		aa.calculateCells(image);
 		seamCalculate s = new seamCalculate(aa, seamShape.general);
@@ -44,14 +48,17 @@ public class exec {
 		// write image
 		try {
 			BufferedImage tmp;
-			tmp = aa.insertSeams(100, s, image);
-			inputFile = new File("/Users/othman/Downloads/image_test/out_K_insert.png");
-			ImageIO.write(tmp, "jpeg", inputFile);
-			for (int i = 0; i < 100; i++) {
+			int simNum = 100;
+			tmp = aa.insertSeams(simNum, s, image);
+			inputFile = new File("/Users/othman/Downloads/image_test/out_"+simNum+"_insert.jpg");
+			ImageIO.write(tmp, "jpg", inputFile);
+			/*
+			for (int i = 0; i < simNum; i++) {
 				image = aa.addVerticalSeam(s, image);
 			}
 			inputFile = new File("/Users/othman/Downloads/image_test/out_normal_insert.png");
 			ImageIO.write(image, "jpeg", inputFile);
+			*/
 
 		} catch (IOException e) {
 			System.out.println(e);

@@ -162,6 +162,7 @@ public class seamCalculate {
 			seams[i][0] = last_row_values[i];
 			updateCoors(seams[i]);
 		}
+//		System.out.println(Arrays.toString(last_row_values));
 		return seams;
 	}
 }
