@@ -203,23 +203,22 @@ public class seamCalculate {
 	}
 
 	/*---------------------------------------------------------------------------*/
-	public void pick_seams(int k) {
+	public Coordinates[][] pick_seams(int k) {
 		Coordinates[][] seams=new Coordinates[k][energyObj.rows];
 		Coordinates[] last_row_values=new Coordinates[energyObj.cols];
 		generalCalculation();//to compute the M map
-		for(int i=0;i<k;i++){
-			for (int j = 0; j < energyObj.rows; j++) {
-				seams[i][j].col=0;
-				seams[i][j].row=0;
-			}
-			
-		}
 		for(int i=0;i<energyObj.rows;i++){//init the coordinates 
 			last_row_values[i].col=i;
 			last_row_values[i].row=energyObj.rows-1;
 			last_row_values[i].M=energyObj.cellMatrix[i+1][energyObj.rows].M;
 		}
 		Arrays.sort(last_row_values);
+	
+	for(int i=0;i<k;i++){
+		seams[i][0]=last_row_values[i];
+		updateCoors(seams[i]);
+		}
+	return seams;
 	}
 }
 
