@@ -1,4 +1,5 @@
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.lang.Math;
 import java.util.Arrays;
 
@@ -42,7 +43,6 @@ public class EnergyFunctions {
 			for (int j = y - 1; j <= y + 1; j++) {
 				if (i == x && j == y) // avoid central cell
 					continue;
-				// System.out.println("i="+i+" ,j="+j);
 				current = cellMatrix[i][j];
 				if (current.blue == -1) // avoid empty cells
 					continue;
@@ -64,8 +64,7 @@ public class EnergyFunctions {
 			}
 		}
 		caclculatedCellsAlready = true;
-		System.out.println("calculated RGB");
-
+//		System.out.println("calculated RGB");
 		// calculating the energy of the input image
 		for (int x = 1; x <= cols; x++) {
 			for (int y = 1; y <= rows; y++) {
@@ -96,6 +95,18 @@ public class EnergyFunctions {
 		System.out.println("colored seam");
 	}
 
+	public BufferedImage insertSeams(int k, seamCalculate s, BufferedImage img) {
+		System.out.println("adding " + k + " vertical seam(s)");
+		Coordinates[][] seams = s.pick_seams(k);
+		for (int i = 0; i < k; i++) {
+			s.coors = seams[i];
+//			System.out.println(Arrays.toString(s.coors));
+			img = addVerticalSeam(s, img);
+		}
+		System.out.println("added " + k + " vertical seam(s)");
+		return img;
+	}
+
 	public BufferedImage removeVerticalSeam(seamCalculate s, BufferedImage img) {
 		// after reaching the seam cell, we would simply remove it and continue as
 		// normal
@@ -115,7 +126,6 @@ public class EnergyFunctions {
 			bias = 0;
 			counter++;
 		}
-		//_________-----_____-----	functions that change the seam and matrix !!!!
 		updateEnertgy(img.getWidth(), img.getHeight());
 		calculateCells(img);
 		calculateCellEntropy();
@@ -126,8 +136,7 @@ public class EnergyFunctions {
 
 	public BufferedImage addVerticalSeam(seamCalculate s, BufferedImage img) {
 		// after reaching the seam cell, we would simply replicate it and continue as
-		// normal
-		// the replica would take the extra cell that was created
+		// normal the replica would take the extra cell that was created
 		BufferedImage bufferedImage = new BufferedImage(img.getWidth() + 1, img.getHeight(),
 				BufferedImage.TYPE_INT_RGB);
 		Coordinates coor[] = s.coors;
@@ -137,11 +146,15 @@ public class EnergyFunctions {
 		for (int y = img.getHeight() - 1; y >= 0; y--) {
 			for (int x = 0; x < img.getWidth(); x++) {
 				if (doAverage) {
-					int avg;
+					int avg=0;
 					if (x == img.getWidth() - 1) {
 						avg = averageRGB(img.getRGB(x - 1, y), img.getRGB(x - 2, y));
 					} else {
-						avg = averageRGB(img.getRGB(x - 1, y), img.getRGB(x + 1, y));
+						try {		
+							avg = averageRGB(img.getRGB(x - 1, y), img.getRGB(x + 1, y));
+						} catch (IndexOutOfBoundsException e) {
+							System.out.println(e);
+						}
 					}
 					bufferedImage.setRGB(x, y, avg);
 					doAverage = false;
@@ -159,16 +172,14 @@ public class EnergyFunctions {
 					doAverage = true;
 				}
 			}
+			doAverage=false;
 			bias = 0;
 			counter++;
 		}
-		//_________-----_____-----	functions that change the seam and matrix !!!!
 		updateEnertgy(img.getWidth(), img.getHeight());
 		calculateCells(img);
 		// calculateCellEntropy();
-		s.updateSeam();
-//		System.out.println(Arrays.deepToString(s.coors));
-		System.out.println("added vertical seam");
+//		s.updateSeam();
 		return bufferedImage;
 	}
 
@@ -176,8 +187,6 @@ public class EnergyFunctions {
 		int x1 = (((pix1 >> 16) & 0xff) + ((pix2 >> 16) & 0xff)) / 2; // red
 		int x2 = (((pix1 >> 8) & 0xff) + ((pix2 >> 8) & 0xff)) / 2; // red
 		int x3 = ((pix1 & 0xff) + (pix2 & 0xff)) / 2; // red
-		System.out.println("pix1=" + pix1 + ", pix2=" + pix2 + ", average=" + x1 + x2 + x3);
-
 		return (x1 << 16) + (x2 << 8) + x3;
 	}
 

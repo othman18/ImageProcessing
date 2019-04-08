@@ -1,18 +1,16 @@
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-
 import javax.imageio.ImageIO;
 
 /*
+ * TODO
+ * parse image according to it's ending !!!!!
  * 
- * othman's notes 8.4.19
- * adding the seam is somewhat buggy because it duplicates the same seam each time... I think this is
- * okay ask al 7j
- */
+ * */
+
 public class exec {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		EnergyFunctions aa = new EnergyFunctions(3, 3);
 		/*
 		 * aa.cellMatrix[1][1].setRGB(0xf); aa.cellMatrix[1][2].setRGB(0x0);
@@ -33,32 +31,34 @@ public class exec {
 		BufferedImage image = null;
 		File inputFile = null;
 		try {
-
-			inputFile = new File("/Users/othman/Downloads/image_test/test.png");
+			inputFile = new File("/Users/othman/Downloads/image_test/1test.jpg");
 			image = ImageIO.read(inputFile);
 			System.out.println("Reading complete.");
 
 		} catch (IOException e) {
-
 			e.printStackTrace();
 		}
+
 		int width = image.getWidth();
 		int height = image.getHeight();
-		System.out.println(width + " , " + height);
 		aa = new EnergyFunctions(width, height);
 		aa.calculateCells(image);
-
 		seamCalculate s = new seamCalculate(aa, seamShape.general);
 		s.updateSeam();
 		// write image
-		try {			
-			for (int i = 0; i < 50; i++) {
+		try {
+			BufferedImage tmp;
+			int simNum = 100;
+			tmp = aa.insertSeams(simNum, s, image);
+			inputFile = new File("/Users/othman/Downloads/image_test/out_"+simNum+"_insert.jpg");
+			ImageIO.write(tmp, "jpg", inputFile);
+			/*
+			for (int i = 0; i < simNum; i++) {
 				image = aa.addVerticalSeam(s, image);
-				inputFile = new File("/Users/othman/Downloads/image_test/out" + i + ".png");
-				ImageIO.write(image, "jpeg", inputFile);
-				System.out.println(aa.cols + " , " + aa.rows);
 			}
-			
+			inputFile = new File("/Users/othman/Downloads/image_test/out_normal_insert.png");
+			ImageIO.write(image, "jpeg", inputFile);
+			*/
 
 		} catch (IOException e) {
 			System.out.println(e);
