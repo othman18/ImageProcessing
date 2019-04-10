@@ -1,13 +1,14 @@
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.lang.Math;
-import java.util.Arrays;
+import javax.imageio.ImageIO;
 
 public class EnergyFunctions {
 
 	Cell[][] cellMatrix;
 	int cols, rows;
-	boolean caclculatedCellsAlready = false;
+	boolean caclculatedCellsAlready = false, doEntropy = false;
 
 	EnergyFunctions(int width, int height) {
 		cellMatrix = new Cell[width + 2][height + 2];
@@ -56,6 +57,7 @@ public class EnergyFunctions {
 	}
 
 	void calculateCells(BufferedImage image) {
+
 		// calculating RBG values for each pixel in the input image
 		for (int x = 1; x <= cols; x++) {
 			for (int y = 1; y <= rows; y++) {
@@ -64,14 +66,14 @@ public class EnergyFunctions {
 			}
 		}
 		caclculatedCellsAlready = true;
-//		System.out.println("calculated RGB");
 		// calculating the energy of the input image
 		for (int x = 1; x <= cols; x++) {
 			for (int y = 1; y <= rows; y++) {
 				calculateEnergy(x, y);
 			}
 		}
-
+		if (doEntropy)
+			calculateCellEntropy();
 	}
 
 	/*----------------------remove/add seam functions -----------------*/
@@ -95,43 +97,39 @@ public class EnergyFunctions {
 		System.out.println("colored seam");
 	}
 
-	public BufferedImage insertSeams(int k, seamCalculate s, BufferedImage img) {
+	public BufferedImage insertSeams(int k, seamCalculate s, BufferedImage img) throws IOException {
 		System.out.println("adding " + k + " vertical seam(s)");
-		Coordinates[][] seams = s.pick_seams(k);
+		Coordinates[][] seams = s.pick_seams(k,img);
+
+		File inputFile = null;
+		BufferedImage tmp = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_RGB);
+		for (int y = 0; y < img.getHeight(); y++) {
+			for (int x = 0; x < img.getWidth(); x++) { // smaller after removing the seam
+				tmp.setRGB(x, y, img.getRGB(x, y));
+			}
+		}
+
 		for (int i = 0; i < k; i++) {
 			s.coors = seams[i];
-//			System.out.println(Arrays.toString(s.coors));
 			img = addVerticalSeam(s, img);
+
+			inputFile = new File("/Users/othman/Downloads/image_test/" + i + "_color.jpg");
+			colorSeam(s.coors, tmp);
+			ImageIO.write(tmp, "jpg", inputFile);
+
 		}
-		System.out.println("added " + k + " vertical seam(s)");
+		System.out.println("done");
+		calculateCells(img);
 		return img;
 	}
 
-	public BufferedImage removeVerticalSeam(seamCalculate s, BufferedImage img) {
-		// after reaching the seam cell, we would simply remove it and continue as
-		// normal
-
-		BufferedImage bufferedImage = new BufferedImage(img.getWidth() - 1, img.getHeight(),
-				BufferedImage.TYPE_INT_RGB);
-		Coordinates coor[] = s.coors;
-		// coor would be from bottom to top
-		int counter = 0, bias = 0;
-		for (int y = img.getHeight() - 1; y >= 0; y--) {
-			for (int x = 0; x < img.getWidth() - 1; x++) { // smaller after removing the seam
-				if (x == coor[counter].col) { // ignore seam here
-					bias = 1;
-				}
-				bufferedImage.setRGB(x, y, img.getRGB(x + bias, y));
-			}
-			bias = 0;
-			counter++;
-		}
-		updateEnertgy(img.getWidth(), img.getHeight());
+	public BufferedImage insertSeamsNew(int k, seamCalculate s, BufferedImage img) throws IOException {
+		System.out.println("adding " + k + " vertical seam(s)");
+		s.pick_seams(k,img);
+		img = addVerticalSeamNew(k, s, img);
+		System.out.println("done");
 		calculateCells(img);
-		calculateCellEntropy();
-		s.updateSeam();
-		System.out.println("removed vertical seam");
-		return bufferedImage;
+		return img;
 	}
 
 	public BufferedImage addVerticalSeam(seamCalculate s, BufferedImage img) {
@@ -142,15 +140,16 @@ public class EnergyFunctions {
 		Coordinates coor[] = s.coors;
 		// coor would be start from bottom to top
 		int counter = 0, bias = 0;
+
 		boolean doAverage = false;
 		for (int y = img.getHeight() - 1; y >= 0; y--) {
 			for (int x = 0; x < img.getWidth(); x++) {
 				if (doAverage) {
-					int avg=0;
+					int avg = 0;
 					if (x == img.getWidth() - 1) {
 						avg = averageRGB(img.getRGB(x - 1, y), img.getRGB(x - 2, y));
 					} else {
-						try {		
+						try {
 							avg = averageRGB(img.getRGB(x - 1, y), img.getRGB(x + 1, y));
 						} catch (IndexOutOfBoundsException e) {
 							System.out.println(e);
@@ -172,15 +171,88 @@ public class EnergyFunctions {
 					doAverage = true;
 				}
 			}
-			doAverage=false;
+			doAverage = false;
 			bias = 0;
 			counter++;
 		}
-		updateEnertgy(img.getWidth(), img.getHeight());
-		calculateCells(img);
-		// calculateCellEntropy();
-//		s.updateSeam();
+		updateEnertgy(bufferedImage.getWidth(), bufferedImage.getHeight());
 		return bufferedImage;
+	}
+
+	public BufferedImage removeVerticalSeam(seamCalculate s, BufferedImage img) {
+
+		// after reaching the seam cell, we would simply remove it and continue as
+		// normal
+
+		BufferedImage bufferedImage = new BufferedImage(img.getWidth() - 1, img.getHeight(),
+				BufferedImage.TYPE_INT_RGB);
+		Coordinates coor[] = s.coors;
+		// coor would be from bottom to top
+		int counter = 0, bias = 0;
+		for (int y = img.getHeight() - 1; y >= 0; y--) {
+			for (int x = 0; x < img.getWidth() - 1; x++) { // smaller after removing the seam
+				if (x == coor[counter].col) { // ignore seam here
+					bias = 1;
+				}
+				bufferedImage.setRGB(x, y, img.getRGB(x + bias, y));
+			}
+			bias = 0;
+			counter++;
+		}
+		updateEnertgy(bufferedImage.getWidth(), bufferedImage.getHeight());
+		calculateCells(bufferedImage);
+		s.updateSeam();
+		System.out.println("removed vertical seam");
+		return bufferedImage;
+	}
+
+	public BufferedImage addVerticalSeamNew(int k, seamCalculate s, BufferedImage img) {
+
+		BufferedImage bufferedImage = new BufferedImage(img.getWidth() + k, img.getHeight(),
+				BufferedImage.TYPE_INT_RGB);
+		// updateEnertgy(bufferedImage.getWidth(), bufferedImage.getHeight());
+		// coor would be start from bottom to top
+		int bias = 0;
+		for (int y = 0; y < img.getHeight(); y++) {
+			for (int x = 0; x < img.getWidth(); x++) {
+				int dup = cellMatrix[x + 1][y + 1].duplicate;
+				for (int i = 0; i < dup; i++) {
+					if (x + bias == img.getWidth() + k - 1)
+						continue;
+					int px1 = img.getRGB(x, y), px2, avg;
+					if (x == (img.getWidth() - 1)) {
+						bufferedImage.setRGB(x + bias, y, img.getRGB(x, y));
+						bias++;
+						continue;
+					}
+					px2 = img.getRGB(x + 1, y);
+					//avg = blend(px1, px2, dup, i);			//check this again for blend
+					avg=px1;
+					bufferedImage.setRGB(x + bias, y, avg);
+					bias++;
+				}
+
+				bias--;
+			}
+			bias = 0;
+		}
+		updateEnertgy(bufferedImage.getWidth(), bufferedImage.getHeight());
+		return bufferedImage;
+	}
+
+	private int blend(int px1, int px2, int dup, int i) {
+		/* we do the relative average between the two pixels */
+		double x1 = ((px1 >> 16) & 0xff) * (dup-i)  ; // red
+		double x11 = (((px2 >> 16) & 0xff)) * (i); // red
+		double x2 = (((px1 >> 8) & 0xff) * (dup-i)); // red
+		double x22 = ((px2 >> 8) & 0xff) * ((i)); // red
+		double x3 = ((px1 & 0xff) * (dup-i) ); // red
+		double x33 = (px2 & 0xff) * ((i)); // red
+		x1=x1/dup+x11/dup;
+		x2=x2/dup+x22/dup;
+		x3=x3/dup+x33/dup;
+		
+		return (((int) x1 )<< 16) + (((int) x2) << 8) + (int) x3; 
 	}
 
 	int averageRGB(int pix1, int pix2) {
@@ -209,6 +281,8 @@ public class EnergyFunctions {
 		 * for each cell we will calculate the pValue and then adding the entropy
 		 */
 		// the pvalue
+		System.out.println("calculating entropy");
+
 		for (int x = 1; x <= cols; x++) {
 			for (int y = 1; y <= rows; y++) {
 				calculate_PValue(x, y);
@@ -220,7 +294,7 @@ public class EnergyFunctions {
 				cellMatrix[x][y].energy += entropy(x, y);
 			}
 		}
-
+		System.out.println("done");
 	}
 
 	private double entropy(int col, int row) {
@@ -265,6 +339,7 @@ class Cell {
 	double M = -1;// this will be used for the dynamic programming computation
 	double f = -1;// this is the greyscale for a pixel
 	double p = -1; // this is for the entropy
+	int duplicate = 1; // how often the seam traverses this cell
 
 	void setRGB(int pixel) {
 		red = (pixel >> 16) & 0xff;

@@ -1,4 +1,7 @@
+import java.awt.image.BufferedImage;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 enum seamShape {// there is two ways which we want to compare
 	straight, general;
@@ -26,6 +29,74 @@ public class seamCalculate {
 		}
 	}
 
+	public void generalForwardCalculation(BufferedImage img) {
+
+		int rows = this.energyObj.rows;
+		int cols = this.energyObj.cols;
+		int CL = 0, CR = 0, CU = 0;
+		Cell currCell = null, upLeftCell = null, upCell = null, upRightCell = null;
+
+		for (int x = 0; x < cols; x++) {// the first row "M"'s value will be
+										// initialize to its energy value
+			currCell = energyObj.cellMatrix[x + 1][1];
+			currCell.M = currCell.energy;
+		}
+		// the dynamical programming
+		// **currCell.M=currCell.energy+min(upCell.M,upRightCell.M,upLeftCell.M)**
+		for (int y = 1; y < rows; y++) {// for each row but the first
+			for (int x = 0; x < cols; x++) {// for each column
+				currCell = energyObj.cellMatrix[x + 1][y + 1];
+				upLeftCell = energyObj.cellMatrix[x][y];
+				upCell = energyObj.cellMatrix[x + 1][y];
+				upRightCell = energyObj.cellMatrix[x + 2][y];
+				currCell.M = currCell.energy;
+				System.out.println("x=" + x + ", y=" + y);
+				if (x == 0 || x == (cols - 1)) {
+					CU = 0;
+					if (x == 0) {
+						CL = 0;
+						CR = Math.abs(img.getRGB(x, y - 1) - img.getRGB(x + 1, y));
+					}
+					if (x == (cols - 1)) {
+						CR = 0;
+						CL = Math.abs(img.getRGB(x, y - 1) - img.getRGB(x - 1, y));
+					}
+				} else {
+					CU = Math.abs(img.getRGB(x + 1, y) - img.getRGB(x - 1, y));
+					CL = CU + Math.abs(img.getRGB(x, y - 1) - img.getRGB(x - 1, y));
+					CR = CU + Math.abs(img.getRGB(x, y - 1) - img.getRGB(x + 1, y));
+
+				}
+				if (x == 0) {// if we are in the first column as we don't have
+								// the upper left pixel
+					currCell.M += min(upCell.M + CU, upRightCell.M + CL);
+				}
+
+				else if (x == (cols - 1)) {// if we are in the last column as we
+											// don't have the upper right pixel
+					currCell.M += min(upCell.M + CU, upLeftCell.M + CR);
+				} else {
+					currCell.M += min(upCell.M + CU, min(upRightCell.M + CL, upLeftCell.M + CR));
+				}
+			}
+		}
+		// Initialize variables to help us with the back tracing
+		int row_index = rows - 1, min_index = 0, x, coors_index = 0;
+		Cell minCell = energyObj.cellMatrix[1][row_index + 1];
+		for (x = 0; x < cols; x++) {
+			currCell = energyObj.cellMatrix[x + 1][row_index + 1];
+			if (currCell.M < minCell.M) {
+				minCell = currCell;
+				min_index = x;
+			}
+		} // found the sim's start (from the bottom)
+		coors[coors_index].col = min_index;
+		coors[coors_index].row = rows - 1;
+		coors_index++;
+		row_index--;
+		updateCoors(coors);
+	}
+
 	private void generalCalculation() {
 
 		int rows = this.energyObj.rows;
@@ -47,11 +118,13 @@ public class seamCalculate {
 				upRightCell = energyObj.cellMatrix[x + 2][y];
 				currCell.M = currCell.energy;
 
-				if (x == 0) {// if we are in the first column as we don't have the upper left pixel
+				if (x == 0) {// if we are in the first column as we don't have
+								// the upper left pixel
 					currCell.M += min(upCell.M, upRightCell.M);
 				}
 
-				else if (x == (cols - 1)) {// if we are in the last column as we don't have the upper right pixel
+				else if (x == (cols - 1)) {// if we are in the last column as we
+											// don't have the upper right pixel
 					currCell.M += min(upCell.M, upLeftCell.M);
 				} else {
 					currCell.M += min(upCell.M, min(upRightCell.M, upLeftCell.M));
@@ -88,10 +161,17 @@ public class seamCalculate {
 		while (row_index >= 0) {
 			x = coors[coors_index - 1].col;
 			y = coors[coors_index - 1].row;
+			// -----_______----
+//			System.out.println(energyObj.cellMatrix[x+1][y+1].M);
+			energyObj.cellMatrix[x + 1][y + 1].M += 10; // seeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee here
+			energyObj.cellMatrix[x + 1][y + 1].duplicate++;
+			// -----_______----
+
 			upLeftCell = energyObj.cellMatrix[x][y];
 			upCell = energyObj.cellMatrix[x + 1][y];
 			upRightCell = energyObj.cellMatrix[x + 2][y];
 			coors[coors_index].row = row_index;
+
 			if (x == 0) {// first col
 				if (min(upCell.M, upRightCell.M) == upCell.M) {
 					coors[coors_index].col = 0;
@@ -114,19 +194,27 @@ public class seamCalculate {
 					coors[coors_index].col = x - 1;
 				}
 			}
+
 			coors_index++;
 			row_index--;
 		}
 
+		energyObj.cellMatrix[coors[coors_index - 1].col + 1][1].duplicate++;
+
 	}
 
-	private void straightCalculation() {// i ignored that we must start with the second row
+	private void straightCalculation() {// i ignored that we must start with the
+										// second row
 
 		int rows = this.energyObj.rows;
 		int cols = this.energyObj.cols;
 		Cell cell = null;
 		int index = 0;
-		double[] arrayOfSums = new double[this.energyObj.cols];// this array will contain the energy sum for each col
+		double[] arrayOfSums = new double[this.energyObj.cols];// this array
+																// will contain
+																// the energy
+																// sum for each
+																// col
 		// computing for each column what is the energy sum
 		for (int x = 0; x < cols; x++) {// for each column
 			for (int y = 0; y < rows; y++) {// for each row
@@ -144,10 +232,13 @@ public class seamCalculate {
 		}
 	}
 
-	public Coordinates[][] pick_seams(int k) {
+	public Coordinates[][] pick_seams(int k, BufferedImage img) {
+		int[] X_values = new int[k];
 		Coordinates[][] seams = new Coordinates[k][energyObj.rows];
+		Coordinates[][] orderd_seams = new Coordinates[k][energyObj.rows];
 		Coordinates[] last_row_values = new Coordinates[energyObj.cols];
 		generalCalculation();// to compute the M map
+		//generalForwardCalculation(img);
 
 		for (int i = 0; i < energyObj.cols; i++) {// init the coordinates
 			last_row_values[i] = new Coordinates(i, energyObj.rows - 1);
@@ -161,9 +252,24 @@ public class seamCalculate {
 			}
 			seams[i][0] = last_row_values[i];
 			updateCoors(seams[i]);
+			X_values[i] = last_row_values[i].col;
 		}
-//		System.out.println(Arrays.toString(last_row_values));
-		return seams;
+		// System.out.println(Arrays.toString(last_row_values));
+		/* seam sorting using X coordinates */
+		Arrays.sort(X_values);
+		int[] help_array = new int[k];
+		for (int i = 0; i < k; i++) {
+			help_array[i] = X_values[k - i - 1];
+		}
+
+		for (int i = 0; i < k; i++) {
+			for (int j = 0; j < k; j++) {
+				if (seams[j][0].col == help_array[i]) {
+					orderd_seams[i] = seams[j];
+				}
+			}
+		}
+		return orderd_seams;
 	}
 }
 
