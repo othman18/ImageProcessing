@@ -190,7 +190,11 @@ public class seamCalculate {
 				}
 			} else {
 				if (min(upCell.M, min(upLeftCell.M, upRightCell.M)) == upCell.M) {
+					try {
 					coors[coors_index].col = x;
+					}catch(Exception e) {
+						System.out.println();
+					}
 				} else if (min(upRightCell.M, upLeftCell.M) == upRightCell.M) {
 					coors[coors_index].col = x + 1;
 				} else {
