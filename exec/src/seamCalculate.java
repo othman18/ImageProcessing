@@ -10,7 +10,7 @@ public class seamCalculate {
 	seamShape shape; // which way we want to calculate
 	EnergyFunctions energyObj;
 
-	seamCalculate(EnergyFunctions energy, seamShape shape) {
+	public seamCalculate(EnergyFunctions energy, seamShape shape) {
 		this.shape = shape;
 		this.coors = new Coordinates[energy.rows];
 		for (int i = 0; i < energy.rows; i++) {
@@ -19,12 +19,12 @@ public class seamCalculate {
 		this.energyObj = energy;
 	}
 
-	void updateSeam(BufferedImage img) { //this method will calculate the seam's energy
+	void updateSeam(BufferedImage img) { // this method will calculate the seam's energy
 		if (this.shape == seamShape.straight)
 			straightCalculation();
-		else if(this.shape == seamShape.generalForward) {
+		else if (this.shape == seamShape.generalForward) {
 			generalForwardCalculation(img);
-		}else {	
+		} else {
 			generalBackwardCalculation();
 		}
 	}
@@ -33,7 +33,7 @@ public class seamCalculate {
 
 		int rows = this.energyObj.rows;
 		int cols = this.energyObj.cols;
-		int CL = 0, CR = 0, CU = 0;
+		double CL = 0, CR = 0, CU = 0;
 		Cell currCell = null, upLeftCell = null, upCell = null, upRightCell = null;
 
 		for (int x = 0; x < cols; x++) {// the first row "M"'s value will be
@@ -42,7 +42,7 @@ public class seamCalculate {
 			currCell.M = currCell.energy;
 		}
 		// the dynamic programming
-		
+
 		for (int y = 1; y < rows; y++) {// for each row but the first
 			for (int x = 0; x < cols; x++) {// for each column
 				currCell = energyObj.cellMatrix[x + 1][y + 1];
@@ -50,7 +50,7 @@ public class seamCalculate {
 				upCell = energyObj.cellMatrix[x + 1][y];
 				upRightCell = energyObj.cellMatrix[x + 2][y];
 				currCell.M = currCell.energy;
-				//System.out.println("x=" + x + ", y=" + y);
+				// System.out.println("x=" + x + ", y=" + y);
 				if (x == 0 || x == (cols - 1)) {
 					CU = 0;
 					if (x == 0) {
@@ -67,36 +67,22 @@ public class seamCalculate {
 					CR = CU + Math.abs(img.getRGB(x, y - 1) - img.getRGB(x + 1, y));
 
 				}
+
 				if (x == 0) {// if we are in the first column as we don't have
 								// the upper left pixel
-					currCell.M += min(upCell.M + CU, upRightCell.M + CL);
+					currCell.M += min(upCell.M + CU, upRightCell.M + CR);
 				}
 
 				else if (x == (cols - 1)) {// if we are in the last column as we
 											// don't have the upper right pixel
-					currCell.M += min(upCell.M + CU, upLeftCell.M + CR);
+					currCell.M += min(upCell.M + CU, upLeftCell.M + CL);
 				} else {
-					currCell.M += min(upCell.M + CU, min(upRightCell.M + CL, upLeftCell.M + CR));
+					currCell.M += min(upCell.M + CU, min(upRightCell.M + CR, upLeftCell.M + CL));
 				}
 			}
 		}
-		//normalize the matrix
-		double counter=0;
-		for (int x = 0; x < cols; x++) {
-			for (int y = 0; y < rows; y++) {
-				if(x!=0 && x!=cols-1 && y!=0 && y!=rows-1) {
-					counter=8.0;
-				}if((x==0  || x==cols-1)&& y!=0 && y!=rows-1) {
-					counter=5.0;
-				}else if((x!=0 && x!=cols-1)&& (y!=0 || y!=rows-1)) {
-					counter=5.0;
-				}else if((x==0 || x==cols-1)&& (y==0 || y==rows-1)) {
-					counter=3.0;
-				}
-				energyObj.cellMatrix[x + 1][y+1].M/=counter;
-			}
-		}
-		
+		// normalize the matrix
+
 		// Initialize variables to help us with the back tracing
 		int row_index = rows - 1, min_index = 0, x, coors_index = 0;
 		Cell minCell = energyObj.cellMatrix[1][row_index + 1];
@@ -176,15 +162,21 @@ public class seamCalculate {
 		while (row_index >= 0) {
 			x = coors[coors_index - 1].col;
 			y = coors[coors_index - 1].row;
-			if(this.shape == seamShape.generalBackward) {
+			if (this.shape == seamShape.generalBackward) {
+				energyObj.cellMatrix[x + 1][y + 1].M += 10;
+			} else {
+				energyObj.cellMatrix[x][y + 1].M += 10;
 				energyObj.cellMatrix[x + 1][y + 1].M += 10;
 			}
 			energyObj.cellMatrix[x + 1][y + 1].duplicate++;
 			upLeftCell = energyObj.cellMatrix[x][y];
 			upCell = energyObj.cellMatrix[x + 1][y];
 			upRightCell = energyObj.cellMatrix[x + 2][y];
-			coors[coors_index].row = row_index;
-
+			try {
+				coors[coors_index].row = row_index;
+			} catch (ArrayIndexOutOfBoundsException e) {
+				System.out.println("error");
+			}
 			if (x == 0) {// first col
 				if (min(upCell.M, upRightCell.M) == upCell.M) {
 					coors[coors_index].col = 0;
@@ -221,7 +213,7 @@ public class seamCalculate {
 		int cols = this.energyObj.cols;
 		Cell cell = null;
 		int index = 0;
-		// this array  will contain the energy sum for each col
+		// this array will contain the energy sum for each col
 		double[] arrayOfSums = new double[this.energyObj.cols];
 		// computing for each column what is the energy sum
 		for (int x = 0; x < cols; x++) {// for each column
@@ -243,9 +235,9 @@ public class seamCalculate {
 	public Coordinates[][] pick_seams(int k, BufferedImage img) {
 		Coordinates[][] seams = new Coordinates[k][energyObj.rows];
 		Coordinates[] last_row_values = new Coordinates[energyObj.cols];
-		
+
 		this.updateSeam(img);
-		
+
 		for (int i = 0; i < energyObj.cols; i++) {// init the coordinates
 			last_row_values[i] = new Coordinates(i, energyObj.rows - 1);
 			last_row_values[i].M = energyObj.cellMatrix[i + 1][energyObj.rows].M;

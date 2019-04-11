@@ -75,7 +75,7 @@ public class EnergyFunctions {
 				cellMatrix[x][y] = new Cell();
 			}
 		}
-		System.out.println("updated matrix");
+//		System.out.println("updated matrix");
 	}
 
 	public void colorSeam(seamCalculate s, BufferedImage img) { // used for debugging
@@ -109,22 +109,19 @@ public class EnergyFunctions {
 		}
 		updateEnergyMatrix(bufferedImage.getWidth(), bufferedImage.getHeight());
 		calculateCells(bufferedImage);
-		System.out.println("removed vertical seam");
 		return bufferedImage;
 	}
 
 	public BufferedImage removeHorizontalSeam(seamCalculate s, BufferedImage img) {
-		
-		img = transposeImageRight(img);
-		img = removeVerticalSeam( s,  img);
-		img = transposeImageRight(img);
+
+		img = transposeImageRight(s, img);
+		img = removeVerticalSeam(s, img);
+		img = transposeImageRight(s, img);
 		return img;
 	}
-	
+
 	public BufferedImage addKVerticalSeams(int k, seamCalculate s, BufferedImage img) {// calling this method, adds K
 																						// seams to the input image
-		System.out.println("adding " + k + " vertical seam(s)");
-
 		BufferedImage bufferedImage = new BufferedImage(img.getWidth() + k, img.getHeight(),
 				BufferedImage.TYPE_INT_RGB);
 
@@ -147,7 +144,7 @@ public class EnergyFunctions {
 					if (doBlend) {
 						px2 = img.getRGB(x + 1, y);
 						avg = blend(px1, px2, dup, i); // check this again for blend
-						System.out.println(avg);
+
 					} else
 						avg = px1;
 					bufferedImage.setRGB(x + bias, y, avg);
@@ -163,43 +160,45 @@ public class EnergyFunctions {
 	}
 
 	public BufferedImage addKHorizontalSeams(int k, seamCalculate s, BufferedImage img) {
+
+		System.out.println(
+				"getHeight=" + img.getHeight() + ", rows=" + rows + ", getWidth=" + img.getWidth() + ", cols=" + cols);
+		System.out.println(s.shape);
 		
-		img = transposeImageRight(img);
-		img = addKVerticalSeams( k,  s,  img);
-		img = transposeImageRight(img);
+		img = transposeImageRight(s, img);
+		System.out.println(
+				"getHeight=" + img.getHeight() + ", rows=" + rows + ", getWidth=" + img.getWidth() + ", cols=" + cols);
+		img = addKVerticalSeams(k, s, img);
+		img = transposeImageRight(s, img);
 		return img;
 	}
 
 	private int blend(int px1, int px2, int dup, int i) {
 		// spread the relative average between the two pixels
-				int r = (int) Math.pow(2, dup-i);
-				if(i==0) {
-					return px1;
-				}
-				double x1 = ((px1 >> 16) & 0xff)* (r - 1); // red
-				double x11 = (((px2 >> 16) & 0xff)) ; // red
-				double x2 = (((px1 >> 8) & 0xff)* ((r - 1))); // red
-				double x22 = ((px2 >> 8) & 0xff) ; // red
-				double x3 = ((px1 & 0xff)* ((r - 1))); // red
-				double x33 = (px2 & 0xff); // red
-				x1 = x1 / r + x11 / r;
-				x2 = x2 / r + x22 / r;
-				x3 = x3 / r + x33 / r;
-				return (((int) x1) << 16) + (((int) x2) << 8) + (int) x3;
+		int r = (int) Math.pow(2, dup - i);
+		if (i == 0) {
+			return px1;
+		}
+		double x1 = ((px1 >> 16) & 0xff) * (r - 1); // red
+		double x11 = (((px2 >> 16) & 0xff)); // red
+		double x2 = (((px1 >> 8) & 0xff) * ((r - 1))); // red
+		double x22 = ((px2 >> 8) & 0xff); // red
+		double x3 = ((px1 & 0xff) * ((r - 1))); // red
+		double x33 = (px2 & 0xff); // red
+		x1 = x1 / r + x11 / r;
+		x2 = x2 / r + x22 / r;
+		x3 = x3 / r + x33 / r;
+		return (((int) x1) << 16) + (((int) x2) << 8) + (int) x3;
 
 	}
 
-	public BufferedImage transposeImageRight(BufferedImage img) { // transpose a given image
-		System.out.println("transposed image");
+	public BufferedImage transposeImageRight(seamCalculate s, BufferedImage img) { // transpose a given image
 		BufferedImage transposedImage = new BufferedImage(img.getHeight(), img.getWidth(), BufferedImage.TYPE_INT_RGB);
 		for (int y = 0; y < img.getWidth(); y++) {
 			for (int x = 0; x < img.getHeight(); x++) {
 				transposedImage.setRGB(x, y, img.getRGB(y, x));
 			}
 		}
-
-		updateEnergyMatrix(transposedImage.getWidth(), transposedImage.getHeight());
-		calculateCells(transposedImage);		
 		return transposedImage;
 	}
 
