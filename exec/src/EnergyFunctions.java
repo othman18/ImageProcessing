@@ -78,22 +78,14 @@ public class EnergyFunctions {
 //		System.out.println("updated matrix");
 	}
 
-	public void colorSeam(seamCalculate s, BufferedImage img) { // used for debugging
-		s.updateSeam(img);
-		Coordinates[] coor = s.coors;
-		for (Coordinates c : coor) {
-			img.setRGB(c.col, c.row, 0xFF0000);
-		}
-		System.out.println("colored seam");
-
-	}
-
 	public BufferedImage removeVerticalSeam(seamCalculate s, BufferedImage img) { // calling this method, remove the
 																					// minimal seam
 		// giving a seam object, we'll calculate the optimal seam and remove it
 		BufferedImage bufferedImage = new BufferedImage(img.getWidth() - 1, img.getHeight(),
 				BufferedImage.TYPE_INT_RGB); // create a new image with a lower dimension
+
 		s.updateSeam(img);
+//		System.out.println(Arrays.deepToString(s.coors));
 		Coordinates coor[] = s.coors;
 		// coor would be from bottom to top
 		int counter = 0, bias = 0;
@@ -109,6 +101,7 @@ public class EnergyFunctions {
 		}
 		updateEnergyMatrix(bufferedImage.getWidth(), bufferedImage.getHeight());
 		calculateCells(bufferedImage);
+
 		return bufferedImage;
 	}
 
@@ -164,7 +157,7 @@ public class EnergyFunctions {
 		System.out.println(
 				"getHeight=" + img.getHeight() + ", rows=" + rows + ", getWidth=" + img.getWidth() + ", cols=" + cols);
 		System.out.println(s.shape);
-		
+
 		img = transposeImageRight(s, img);
 		System.out.println(
 				"getHeight=" + img.getHeight() + ", rows=" + rows + ", getWidth=" + img.getWidth() + ", cols=" + cols);

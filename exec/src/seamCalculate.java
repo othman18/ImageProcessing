@@ -52,13 +52,13 @@ public class seamCalculate {
 				currCell.M = currCell.energy;
 				// System.out.println("x=" + x + ", y=" + y);
 				if (x == 0 || x == (cols - 1)) {
-					CU = 0;
+					CU = 70000000;
 					if (x == 0) {
-						CL = 0;
+						CL = 800000;
 						CR = Math.abs(img.getRGB(x, y - 1) - img.getRGB(x + 1, y));
 					}
 					if (x == (cols - 1)) {
-						CR = 0;
+						CR = 600000;
 						CL = Math.abs(img.getRGB(x, y - 1) - img.getRGB(x - 1, y));
 					}
 				} else {
@@ -162,10 +162,8 @@ public class seamCalculate {
 		while (row_index >= 0) {
 			x = coors[coors_index - 1].col;
 			y = coors[coors_index - 1].row;
+//			System.out.println(energyObj.cellMatrix[x + 1][y + 1].M );
 			if (this.shape == seamShape.generalBackward) {
-				energyObj.cellMatrix[x + 1][y + 1].M += 10;
-			} else {
-				energyObj.cellMatrix[x][y + 1].M += 10;
 				energyObj.cellMatrix[x + 1][y + 1].M += 10;
 			}
 			energyObj.cellMatrix[x + 1][y + 1].duplicate++;
@@ -248,7 +246,11 @@ public class seamCalculate {
 			for (int j = 0; j < energyObj.rows; j++) {
 				seams[i][j] = new Coordinates(0, 0);
 			}
-			seams[i][0] = last_row_values[i];
+			try {
+				seams[i][0] = last_row_values[i];
+			} catch (ArrayIndexOutOfBoundsException e) {
+				System.out.println();
+			}
 			updateCoors(seams[i]);
 		}
 		return seams;
