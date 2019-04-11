@@ -1,10 +1,8 @@
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 
-enum seamShape {// there is two ways which we want to compare
-	straight, general;
+enum seamShape {
+	straight, generalBackward, generalForward;
 }
 
 public class seamCalculate {
@@ -21,11 +19,13 @@ public class seamCalculate {
 		this.energyObj = energy;
 	}
 
-	void updateSeam() {
+	void updateSeam(BufferedImage img) { //this method will calculate the seam's energy
 		if (this.shape == seamShape.straight)
 			straightCalculation();
-		else {
-			generalCalculation();
+		else if(this.shape == seamShape.generalForward) {
+			generalForwardCalculation(img);
+		}else {	
+			generalBackwardCalculation();
 		}
 	}
 
@@ -41,8 +41,8 @@ public class seamCalculate {
 			currCell = energyObj.cellMatrix[x + 1][1];
 			currCell.M = currCell.energy;
 		}
-		// the dynamical programming
-		// **currCell.M=currCell.energy+min(upCell.M,upRightCell.M,upLeftCell.M)**
+		// the dynamic programming
+		
 		for (int y = 1; y < rows; y++) {// for each row but the first
 			for (int x = 0; x < cols; x++) {// for each column
 				currCell = energyObj.cellMatrix[x + 1][y + 1];
@@ -50,7 +50,7 @@ public class seamCalculate {
 				upCell = energyObj.cellMatrix[x + 1][y];
 				upRightCell = energyObj.cellMatrix[x + 2][y];
 				currCell.M = currCell.energy;
-				System.out.println("x=" + x + ", y=" + y);
+				//System.out.println("x=" + x + ", y=" + y);
 				if (x == 0 || x == (cols - 1)) {
 					CU = 0;
 					if (x == 0) {
@@ -80,6 +80,23 @@ public class seamCalculate {
 				}
 			}
 		}
+		//normalize the matrix
+		double counter=0;
+		for (int x = 0; x < cols; x++) {
+			for (int y = 0; y < rows; y++) {
+				if(x!=0 && x!=cols-1 && y!=0 && y!=rows-1) {
+					counter=8.0;
+				}if((x==0  || x==cols-1)&& y!=0 && y!=rows-1) {
+					counter=5.0;
+				}else if((x!=0 && x!=cols-1)&& (y!=0 || y!=rows-1)) {
+					counter=5.0;
+				}else if((x==0 || x==cols-1)&& (y==0 || y==rows-1)) {
+					counter=3.0;
+				}
+				energyObj.cellMatrix[x + 1][y+1].M/=counter;
+			}
+		}
+		
 		// Initialize variables to help us with the back tracing
 		int row_index = rows - 1, min_index = 0, x, coors_index = 0;
 		Cell minCell = energyObj.cellMatrix[1][row_index + 1];
@@ -97,18 +114,16 @@ public class seamCalculate {
 		updateCoors(coors);
 	}
 
-	private void generalCalculation() {
-
+	private void generalBackwardCalculation() {
 		int rows = this.energyObj.rows;
 		int cols = this.energyObj.cols;
 		Cell currCell = null, upLeftCell = null, upCell = null, upRightCell = null;
 
-		for (int x = 0; x < cols; x++) {// the first row "M"'s value will be
-										// initialize to its energy value
+		for (int x = 0; x < cols; x++) {// the first row "M"'s value will be initialize to its energy value
 			currCell = energyObj.cellMatrix[x + 1][1];
 			currCell.M = currCell.energy;
 		}
-		// the dynamical programming
+		// the dynamic programming
 		// **currCell.M=currCell.energy+min(upCell.M,upRightCell.M,upLeftCell.M)**
 		for (int y = 1; y < rows; y++) {// for each row but the first
 			for (int x = 0; x < cols; x++) {// for each column
@@ -161,12 +176,10 @@ public class seamCalculate {
 		while (row_index >= 0) {
 			x = coors[coors_index - 1].col;
 			y = coors[coors_index - 1].row;
-			// -----_______----
-//			System.out.println(energyObj.cellMatrix[x+1][y+1].M);
-			energyObj.cellMatrix[x + 1][y + 1].M += 10; // seeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee here
+			if(this.shape == seamShape.generalBackward) {
+				energyObj.cellMatrix[x + 1][y + 1].M += 10;
+			}
 			energyObj.cellMatrix[x + 1][y + 1].duplicate++;
-			// -----_______----
-
 			upLeftCell = energyObj.cellMatrix[x][y];
 			upCell = energyObj.cellMatrix[x + 1][y];
 			upRightCell = energyObj.cellMatrix[x + 2][y];
@@ -203,18 +216,13 @@ public class seamCalculate {
 
 	}
 
-	private void straightCalculation() {// i ignored that we must start with the
-										// second row
-
+	private void straightCalculation() {
 		int rows = this.energyObj.rows;
 		int cols = this.energyObj.cols;
 		Cell cell = null;
 		int index = 0;
-		double[] arrayOfSums = new double[this.energyObj.cols];// this array
-																// will contain
-																// the energy
-																// sum for each
-																// col
+		// this array  will contain the energy sum for each col
+		double[] arrayOfSums = new double[this.energyObj.cols];
 		// computing for each column what is the energy sum
 		for (int x = 0; x < cols; x++) {// for each column
 			for (int y = 0; y < rows; y++) {// for each row
@@ -233,13 +241,11 @@ public class seamCalculate {
 	}
 
 	public Coordinates[][] pick_seams(int k, BufferedImage img) {
-		int[] X_values = new int[k];
 		Coordinates[][] seams = new Coordinates[k][energyObj.rows];
-		Coordinates[][] orderd_seams = new Coordinates[k][energyObj.rows];
 		Coordinates[] last_row_values = new Coordinates[energyObj.cols];
-		generalCalculation();// to compute the M map
-		//generalForwardCalculation(img);
-
+		
+		this.updateSeam(img);
+		
 		for (int i = 0; i < energyObj.cols; i++) {// init the coordinates
 			last_row_values[i] = new Coordinates(i, energyObj.rows - 1);
 			last_row_values[i].M = energyObj.cellMatrix[i + 1][energyObj.rows].M;
@@ -252,24 +258,8 @@ public class seamCalculate {
 			}
 			seams[i][0] = last_row_values[i];
 			updateCoors(seams[i]);
-			X_values[i] = last_row_values[i].col;
 		}
-		// System.out.println(Arrays.toString(last_row_values));
-		/* seam sorting using X coordinates */
-		Arrays.sort(X_values);
-		int[] help_array = new int[k];
-		for (int i = 0; i < k; i++) {
-			help_array[i] = X_values[k - i - 1];
-		}
-
-		for (int i = 0; i < k; i++) {
-			for (int j = 0; j < k; j++) {
-				if (seams[j][0].col == help_array[i]) {
-					orderd_seams[i] = seams[j];
-				}
-			}
-		}
-		return orderd_seams;
+		return seams;
 	}
 }
 
