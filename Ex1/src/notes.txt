@@ -1,0 +1,1 @@
+Bug found when inserting seams into a picture which is too large. Which results in an exception out of bound.
