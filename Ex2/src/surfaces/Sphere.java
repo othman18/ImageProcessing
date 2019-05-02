@@ -7,8 +7,10 @@ public class Sphere extends Surfaces {
 	Vector center;
 	
 	public Sphere(Vector center, double radius){
-		setType(type.sphere);
 		this.center = center;
 		this.radius = radius;
+	}
+	public type getType() {
+		return type.sphere;
 	}
 }

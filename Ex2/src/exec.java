@@ -4,10 +4,11 @@ import surfaces.*;
 public class exec {
 	public static void main(String[] args) {
 		Vector v1 = new Vector(1,2,3);
-		Surfaces s = new Triangle(v1,v1,v1);
-		Surfaces s2 = new Sphere(v1, 2);
-		System.out.println(s.getType());
+		Surfaces s1 = new Sphere(v1, 0);
+		Surfaces s2 = new Triangle(v1, v1, v1);
+		Surfaces s3 = new InfinitePlane();
+		System.out.println(s1.getType());
 		System.out.println(s2.getType());
-		
+		System.out.println(s3.getType());		
 	}
 }
