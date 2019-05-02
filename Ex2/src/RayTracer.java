@@ -1,13 +1,10 @@
-
-import java.awt.Transparency;
+import java.awt.Transparency; 
 import java.awt.color.*;
 import java.awt.image.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.imageio.ImageIO;
 

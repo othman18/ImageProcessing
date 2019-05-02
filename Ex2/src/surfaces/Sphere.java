@@ -1,12 +1,12 @@
 package surfaces;
-import myUtils.Vector;
+import myUtils.Point;
 
 public class Sphere extends Surfaces {
 	
 	double radius;
-	Vector center;
+	Point center;
 	
-	public Sphere(Vector center, double radius){
+	public Sphere(Point center, double radius){
 		this.center = center;
 		this.radius = radius;
 	}

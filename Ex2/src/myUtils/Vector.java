@@ -70,7 +70,7 @@ public class Vector {
 
 	@Override
 	public String toString() {
-		return "("+x+","+y+","+z+")";
+		return "V("+x+","+y+","+z+")";
 
 	}
 }
