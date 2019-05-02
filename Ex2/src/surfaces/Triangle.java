@@ -1,4 +1,5 @@
 package surfaces;
+
 import myUtils.Vector;
 
 public class Triangle extends Surfaces {
@@ -10,7 +11,7 @@ public class Triangle extends Surfaces {
 		this.v2 = v2;
 		this.v3 = v3;
 	}
-	
+
 	public type getType() {
 		return type.triangle;
 	}
