@@ -15,4 +15,10 @@ public class Sphere extends Surfaces {
 	public type getType() {
 		return type.sphere;
 	}
+	
+	@Override
+	public String toString() {
+		return "Sp.: r="+radius+", c="+center;
+	}
+
 }

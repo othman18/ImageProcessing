@@ -15,4 +15,12 @@ public class Triangle extends Surfaces {
 	public type getType() {
 		return type.triangle;
 	}
+
+	@Override
+	public String toString() {
+		return "Tr.: v1="+v1+", v2="+v2+", v3="+v3;
+	}
+
+
 }
+
