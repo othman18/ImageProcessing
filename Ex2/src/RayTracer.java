@@ -27,7 +27,6 @@ public class RayTracer {
 		try {
 
 			RayTracer tracer = new RayTracer();
-
 			// Default values:
 			tracer.imageWidth = 500;
 			tracer.imageHeight = 500;
