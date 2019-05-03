@@ -10,9 +10,5 @@ public class InfinitePlane extends Surfaces{
 		return type.infinitePlane;
 	}
 	
-	@Override
-	public String toString() {
-		return "IP: N=?, P=?";
-	}
 
 }
