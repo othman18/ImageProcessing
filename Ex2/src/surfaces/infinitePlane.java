@@ -1,9 +1,14 @@
 package surfaces;
 
-public class infinitePlane extends Surfaces{
+public class InfinitePlane extends Surfaces{
 	
-	public infinitePlane() {
-		setType(type.infinitePlane);
+	public InfinitePlane() {
 		System.out.println("should define the normal and offset");
 	}
+
+	public type getType() {
+		return type.infinitePlane;
+	}
+	
+
 }

@@ -5,6 +5,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
+import myUtils.*;
 
 import javax.imageio.ImageIO;
 
@@ -81,10 +83,25 @@ public class RayTracer {
 				// Split according to white space characters:
 				String[] params = line.substring(3).trim().toLowerCase().split("\\s+");
 
+				System.out.println(Arrays.deepToString(params));
+
 				if (code.equals("cam")) {
 					// Add code here to parse camera parameters
-
+					if (params.length < 11 || params.length > 11) {
+						System.out.println("cam input file error");
+						return;
+					}
+					Point position = new Point(Double.parseDouble(params[0]),
+						Double.parseDouble(params[1]),Double.parseDouble(params[2]));
+					Point lookAtPoint = new Point(Double.parseDouble(params[3]),
+							Double.parseDouble(params[4]),Double.parseDouble(params[5]));
+					Vector upVector = new Vector(Double.parseDouble(params[6]),
+							Double.parseDouble(params[7]),Double.parseDouble(params[8]));
+					double screenDistance = Double.parseDouble(params[9]);
+					double screenWidth = Double.parseDouble(params[10]);
+					Camera cam = new Camera(position, lookAtPoint, upVector, screenDistance, screenWidth);
 					System.out.println(String.format("Parsed camera parameters (line %d)", lineNum));
+
 				} else if (code.equals("set")) {
 					// Add code here to parse general settings parameters
 
