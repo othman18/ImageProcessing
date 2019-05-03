@@ -5,5 +5,6 @@ public abstract class Surfaces {
 	enum type {triangle,sphere,infinitePlane};
 	
 	public abstract type getType();
-	
+	public abstract  String toString();
+
 }

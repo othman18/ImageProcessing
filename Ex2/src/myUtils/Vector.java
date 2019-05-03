@@ -82,6 +82,5 @@ public class Vector {
 	@Override
 	public String toString() {
 		return "V(" + x + ", " + y + ", " + z + ")";
-
 	}
 }

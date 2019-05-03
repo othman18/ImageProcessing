@@ -10,5 +10,5 @@ public class InfinitePlane extends Surfaces{
 		return type.infinitePlane;
 	}
 	
-
+	
 }
