@@ -1,7 +1,7 @@
 package myUtils;
 
 public class Light {
-	Point position;
+	Vector position;
 	int color; // RGB
 	double specularIntensity, shadowIntensity, lightRadius;
 	// The light received by a surface which is hidden

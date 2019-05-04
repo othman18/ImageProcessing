@@ -90,9 +90,9 @@ public class RayTracer {
 						System.out.println("cam input file error");
 						return;
 					}
-					Point position = new Point(Double.parseDouble(params[0]),
+					Vector position = new Vector(Double.parseDouble(params[0]),
 						Double.parseDouble(params[1]),Double.parseDouble(params[2]));
-					Point lookAtPoint = new Point(Double.parseDouble(params[3]),
+					Vector lookAtPoint = new Vector(Double.parseDouble(params[3]),
 							Double.parseDouble(params[4]),Double.parseDouble(params[5]));
 					Vector upVector = new Vector(Double.parseDouble(params[6]),
 							Double.parseDouble(params[7]),Double.parseDouble(params[8]));

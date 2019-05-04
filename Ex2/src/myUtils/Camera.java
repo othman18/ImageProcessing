@@ -2,7 +2,7 @@ package myUtils;
 
 public class Camera {
 
-	Point position, lookAtPoint;
+	Vector position, lookAtPoint;
 	Vector upVector;
 	double screenDistance, screenWidth;
 	int backgroundColor; // RGB
@@ -10,7 +10,7 @@ public class Camera {
 	// Maximum recursion level
 	// Super sampling level
 
-	public Camera(Point position, Point lookAtPoint, Vector upVector,
+	public Camera(Vector position, Vector lookAtPoint, Vector upVector,
 			double screenDistance, double screenWidth) {
 		this.position = position;
 		this.lookAtPoint = lookAtPoint;
