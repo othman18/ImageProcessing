@@ -1,1 +1,5 @@
-used for writing notes to one another
+
+4.5:
+	should we even use a point class or simply use the vector class?
+	the pdf says that we use a "vector"...
+	
