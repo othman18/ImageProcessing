@@ -1,5 +1,7 @@
 package myUtils;
 
+/*not finished */
+
 public class Camera {
 
 	Vector position, lookAtPoint;
