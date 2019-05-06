@@ -20,11 +20,18 @@ public class InfinitePlane extends Surfaces {
 		this.c=normal.z;
 		Point p1=normal.p1;
 		this.d=-(a*p1.x+b*p1.y+c*p1.z);
+	}
+	/** make an perpendicular plane*/
+	public InfinitePlane perPlaneOfVector(Vector v){
 		
-		
+		return new InfinitePlane(v.x,v.y,v.z,0);	
+	}
+	/** update the offset*/
+	public InfinitePlane updateOffset(Point p){
+		this.d=-(a*p.x+b*p.y+c*p.z);;
+		return this;
 	}
 	
-
 	public type getType() {
 		return type.infinitePlane;
 	}
