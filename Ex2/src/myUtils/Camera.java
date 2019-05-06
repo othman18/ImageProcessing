@@ -19,6 +19,7 @@ public class Camera {
 		this.screenWidth = screenWidth;
 		
 	}
+	
 
 	@Override
 	public String toString() {
