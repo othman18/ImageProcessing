@@ -3,3 +3,8 @@
 6.5:	
 *in the plane constructor we must make sure that the two vector arn't the same or the 3 point aren't on the same vector
 * generate perpendicular vectors
+
+8.5:
+* in vector class with the method (chain cross product):
+	-we change the x and use it again 
+	i think there is a problem

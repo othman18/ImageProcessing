@@ -3,7 +3,8 @@ import myUtils.Point;
 import myUtils.Vector;
 public class InfinitePlane extends Surfaces {
 
-	double a, b, c, d; // a*x+b*y+ c*z +d = 0
+	double a, b, c, d=0; // a*x+b*y+ c*z +d = 0
+	
 
 	/** make a plane from three points*/
 	public InfinitePlane(double a, double b, double c, double d) {
@@ -18,8 +19,8 @@ public class InfinitePlane extends Surfaces {
 		this.a=normal.x;
 		this.b=normal.y;
 		this.c=normal.z;
-		Point p1=normal.p1;
-		this.d=-(a*p1.x+b*p1.y+c*p1.z);
+//		Point p1=normal.p1;
+//		this.d=-(a*p1.x+b*p1.y+c*p1.z);
 	}
 	/** make an perpendicular plane*/
 	public InfinitePlane perPlaneOfVector(Vector v){

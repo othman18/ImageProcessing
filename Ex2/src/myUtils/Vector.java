@@ -1,23 +1,25 @@
 package myUtils;
-
+import java.lang.Math;;
 public class Vector {
 
 	public double x=0.0, y=0.0, z=0.0;
-	public Point p1,p2;
-	int isMadeFromPoints;
+	public double length;
+//	public Point p1,p2;
+//	int isMadeFromPoints;
 	
 	/** make a specific vector*/
 	public Vector(double x, double y, double z) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
-		p1=new Point(0,0,0);
-		p2=new Point(x,y,z);
-		isMadeFromPoints=0;
+	//	p1=new Point(0,0,0);
+	//	p2=new Point(x,y,z);
+	//	isMadeFromPoints=0;
+		length=Math.sqrt(x*x+y*y+z*z);
 		System.out.println("RGB not added yet!");
 	}
 	/** make a vector from two points */
-	public Vector(Point point1,Point point2){
+	/*public Vector(Point point1,Point point2){
 		this.p1=point1;
 		this.p2=point2;
 		this.x=p1.x-p2.x;
@@ -25,11 +27,11 @@ public class Vector {
 		this.z=p1.z-p2.z;
 		isMadeFromPoints=1;
 		System.out.println("RGB not added yet!");
-	}
+	}*/
 
 	/** chain dot product */
 	public double dotProduct(Vector v) {
-		isMadeFromPoints=0;
+	//	isMadeFromPoints=0;
 		return this.x * v.x + this.y * v.y + this.z * v.z;
 		
 	}
@@ -44,7 +46,7 @@ public class Vector {
 		this.x = this.y * v.z - (this.z * v.y);
 		this.y = this.x * v.z - (this.z * v.x);
 		this.z = this.x * v.y - (this.y * v.x);
-		isMadeFromPoints=0;
+	//	isMadeFromPoints=0;
 		return this;
 	}
 
@@ -59,7 +61,7 @@ public class Vector {
 
 	/** chain vector addition */
 	public Vector add(Vector v) {
-		isMadeFromPoints=0;
+	//	isMadeFromPoints=0;
 		this.x += v.x;
 		this.y += v.y;
 		this.z += v.z;
@@ -85,9 +87,7 @@ public class Vector {
 
 	/** multiply two vectors RGB component wise */
 	public Vector mult(Vector v) {
-		isMadeFromPoints=0;
-		System.out.println("not impllemented yet");
-		return null;
+		return new Vector(x*v.x,y*v.y,z*v.z);
 	}
 
 	public Vector generateVectorPerpendicular(Vector v) {
@@ -99,6 +99,11 @@ public class Vector {
 	public Vector generatePerpendicular(Vector v1, Vector v2) {
 		System.out.println("not impllemented yet");
 		return null;
+	}
+	public Vector normalized(Vector v){
+		double d=1.0/v.length;
+		return new Vector(x*d,y*d,z*d);
+		
 	}
 
 	@Override
