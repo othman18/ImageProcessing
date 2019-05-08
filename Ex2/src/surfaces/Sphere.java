@@ -6,10 +6,11 @@ public class Sphere extends Surfaces {
 
 	double radius;
 	Point center;
-
-	public Sphere(Point center, double radius) {
+	int material_index;
+	public Sphere(Point center, double radius,int index) {
 		this.center = center;
 		this.radius = radius;
+		this.material_index=index;
 	}
 
 	public type getType() {

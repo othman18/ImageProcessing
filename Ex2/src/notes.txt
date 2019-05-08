@@ -7,4 +7,9 @@
 8.5:
 * in vector class with the method (chain cross product):
 	-we change the x and use it again 
-	i think there is a problem
+
+
+9.5:aubaida
+*in Class RayTracer.java:
+	in the classes ,i added the mat_index field --> we must change it to Material mat
+ * i changed the triangle fields from vectors to points 

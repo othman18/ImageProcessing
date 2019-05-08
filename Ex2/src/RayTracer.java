@@ -5,11 +5,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
 import myUtils.*;
 
 import javax.imageio.ImageIO;
-
+import surfaces.*;
 /**
  * Main class for ray tracing exercise.
  */
@@ -74,7 +77,13 @@ public class RayTracer {
 		while ((line = r.readLine()) != null) {
 			line = line.trim();
 			++lineNum;
-
+			
+			//init the lists  
+			List<Material> mat_list=new ArrayList<>();
+			List<Sphere> sph_list=new ArrayList<>();
+			List<InfinitePlane> pln_list=new ArrayList<>();
+			List<Triangle> trg_list=new ArrayList<>();
+			List<Light> lgt_list=new ArrayList<>();
 			if (line.isEmpty() || (line.charAt(0) == '#')) { // This line in the scene file is a comment
 				continue;
 			} else {
@@ -86,7 +95,7 @@ public class RayTracer {
 
 				if (code.equals("cam")) {
 					// Add code here to parse camera parameters
-					if (params.length < 11 || params.length > 11) {
+					if (params.length != 11) {
 						System.out.println("cam input file error");
 						return;
 					}
@@ -100,32 +109,100 @@ public class RayTracer {
 					double screenWidth = Double.parseDouble(params[10]);
 					Camera cam = new Camera(position, lookAtPoint, upVector, screenDistance, screenWidth);
 					System.out.println(String.format("Parsed camera parameters (line %d)", lineNum));
-
-				} else if (code.equals("set")) {
+					
+					
+				} else if (code.equals("set")) {//-------------- missing --------------
 					// Add code here to parse general settings parameters
-
+					if (params.length != 6) {
+						System.out.println("general settings input file error");
+						return;
+					}
+					double[] background_RGB={Double.parseDouble(params[0]),Double.parseDouble(params[1]),Double.parseDouble(params[2])};
+					int root_shadow_rays=Integer.parseInt(params[3]);
+					int max_rec_num=Integer.parseInt(params[4]);
+					int super_sam_lvl=Integer.parseInt(params[5]);
+					
 					System.out.println(String.format("Parsed general settings (line %d)", lineNum));
+					
+					
 				} else if (code.equals("mtl")) {
 					// Add code here to parse material parameters
-
+					if (params.length != 11) {
+						System.out.println("material input file error");
+						return;
+					}
+					double[] diffuse_color={Double.parseDouble(params[0]),Double.parseDouble(params[1]),Double.parseDouble(params[2])};
+					double[] specular_color={Double.parseDouble(params[3]),Double.parseDouble(params[4]),Double.parseDouble(params[5])};
+					double[] reflection_color={Double.parseDouble(params[6]),Double.parseDouble(params[7]),Double.parseDouble(params[8])};
+					double phong_coe=Double.parseDouble(params[9]);
+					double transparency_value=Double.parseDouble(params[10]);
+					mat_list.add(new Material(diffuse_color,specular_color,reflection_color,phong_coe,transparency_value));
 					System.out.println(String.format("Parsed material (line %d)", lineNum));
+					
 				} else if (code.equals("sph")) {
+					if (params.length != 5) {
+						System.out.println("sphere input file error");
+						return;
+					}
+					
 					// Add code here to parse sphere parameters
-
+					
 					// Example (you can implement this in many different ways!):
 					// Sphere sphere = new Sphere();
 					// sphere.setCenter(params[0], params[1], params[2]);
 					// sphere.setRadius(params[3]);
 					// sphere.setMaterial(params[4]);
-
+					
+					Point center=new Point(Double.parseDouble(params[0]),Double.parseDouble(params[1]),Double.parseDouble(params[2]));
+					double rad=Double.parseDouble(params[3]);
+					int mat_index=Integer.parseInt(params[4]);
+					sph_list.add(new Sphere(center,rad,mat_index));
+					
 					System.out.println(String.format("Parsed sphere (line %d)", lineNum));
 				} else if (code.equals("pln")) {
 					// Add code here to parse plane parameters
-
+					if (params.length != 5) {
+						System.out.println("plane input file error");
+						return;
+					}
+					double a,b,c,offset;
+					a=Double.parseDouble(params[0]);
+					b=Double.parseDouble(params[1]);
+					c=Double.parseDouble(params[2]);
+					offset=Double.parseDouble(params[3]);
+					int mat_index=Integer.parseInt(params[4]);
+					pln_list.add(new InfinitePlane(a,b,c,offset,mat_index));
+					
 					System.out.println(String.format("Parsed plane (line %d)", lineNum));
+					
+				} else if (code.equals("trg")) {
+					// Add code here to parse light parameters
+					if (params.length != 10) {
+						System.out.println("triangle input file error");
+						return;
+					}
+					Point p1=new Point(Double.parseDouble(params[0]),Double.parseDouble(params[1]),Double.parseDouble(params[2]));
+					Point p2=new Point(Double.parseDouble(params[3]),Double.parseDouble(params[4]),Double.parseDouble(params[5]));
+					Point p3=new Point(Double.parseDouble(params[6]),Double.parseDouble(params[7]),Double.parseDouble(params[8]));
+					int mat_index=Integer.parseInt(params[9]);
+					trg_list.add(new Triangle(p1,p2,p3,mat_index));
+					
+					System.out.println(String.format("Parsed triangle (line %d)", lineNum));
+					
 				} else if (code.equals("lgt")) {
 					// Add code here to parse light parameters
-
+					if (params.length != 9) {
+						System.out.println("light input file error");
+						return;
+					}
+					double spec_intensity,shadow_indensity,light_rad;
+					Point pos=new Point(Double.parseDouble(params[0]),Double.parseDouble(params[1]),Double.parseDouble(params[2]));
+					double[] light_color={Double.parseDouble(params[3]),Double.parseDouble(params[4]),Double.parseDouble(params[5])};
+					spec_intensity=Double.parseDouble(params[6]);
+					shadow_indensity=Double.parseDouble(params[7]);
+					light_rad=Double.parseDouble(params[8]);
+					lgt_list.add(new Light(pos,light_color,spec_intensity,shadow_indensity,light_rad));
+					
 					System.out.println(String.format("Parsed light (line %d)", lineNum));
 				} else {
 					System.out.println(String.format("ERROR: Did not recognize object: %s (line %d)", code, lineNum));

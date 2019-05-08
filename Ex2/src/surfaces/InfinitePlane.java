@@ -4,14 +4,15 @@ import myUtils.Vector;
 public class InfinitePlane extends Surfaces {
 
 	double a, b, c, d=0; // a*x+b*y+ c*z +d = 0
-	
+	int material_index;
 
 	/** make a plane from three points*/
-	public InfinitePlane(double a, double b, double c, double d) {
+	public InfinitePlane(double a, double b, double c, double d,int index) {
 		this.a = a;
 		this.b = b;
 		this.c = c;
 		this.d = d;
+		this.material_index=index;
 	}
 	/** make a plane from two vectors */
 	public InfinitePlane(Vector v1, Vector v2) {
@@ -25,7 +26,7 @@ public class InfinitePlane extends Surfaces {
 	/** make an perpendicular plane*/
 	public InfinitePlane perPlaneOfVector(Vector v){
 		
-		return new InfinitePlane(v.x,v.y,v.z,0);	
+		return new InfinitePlane(v.x,v.y,v.z,0,0);	
 	}
 	/** update the offset*/
 	public InfinitePlane updateOffset(Point p){
