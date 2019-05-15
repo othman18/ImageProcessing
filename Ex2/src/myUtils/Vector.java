@@ -4,17 +4,12 @@ public class Vector {
 
 	public double x=0.0, y=0.0, z=0.0;
 	public double length;
-//	public Point p1,p2;
-//	int isMadeFromPoints;
-	
 	/** make a specific vector*/
 	public Vector(double x, double y, double z) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
-	//	p1=new Point(0,0,0);
-	//	p2=new Point(x,y,z);
-	//	isMadeFromPoints=0;
+
 		length=Math.sqrt(x*x+y*y+z*z);
 		System.out.println("RGB not added yet!");
 	}
@@ -37,7 +32,7 @@ public class Vector {
 	}
 
 	/** return dot product of two vectors */
-	public double dotProduct(Vector v1, Vector v2) {
+	public static double dotProduct(Vector v1, Vector v2) {
 		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 	}
 
@@ -79,10 +74,10 @@ public class Vector {
 
 	/** scale vector with c */
 	public Vector mult(double c) {
-		this.x *= c;
-		this.y *= c;
-		this.z *= c;
-		return this;
+		double x = this.x*c;
+		double y = this.y*c;
+		double z = this.z*c;
+		return new Vector(x,y,z);
 	}
 
 	/** multiply two vectors RGB component wise */

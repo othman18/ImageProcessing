@@ -73,17 +73,16 @@ public class RayTracer {
 		String line = null;
 		int lineNum = 0;
 		System.out.println("Started parsing scene file " + sceneFileName);
-
+		
+		//init the lists  
+		List<Material> mat_list=new ArrayList<>();
+		List<Surfaces> surfaces_list=new ArrayList<>();
+		List<Light> lgt_list=new ArrayList<>();
+		
 		while ((line = r.readLine()) != null) {
 			line = line.trim();
 			++lineNum;
 			
-			//init the lists  
-			List<Material> mat_list=new ArrayList<>();
-			List<Sphere> sph_list=new ArrayList<>();
-			List<InfinitePlane> pln_list=new ArrayList<>();
-			List<Triangle> trg_list=new ArrayList<>();
-			List<Light> lgt_list=new ArrayList<>();
 			if (line.isEmpty() || (line.charAt(0) == '#')) { // This line in the scene file is a comment
 				continue;
 			} else {
@@ -156,7 +155,7 @@ public class RayTracer {
 					Point center=new Point(Double.parseDouble(params[0]),Double.parseDouble(params[1]),Double.parseDouble(params[2]));
 					double rad=Double.parseDouble(params[3]);
 					int mat_index=Integer.parseInt(params[4]);
-					sph_list.add(new Sphere(center,rad,mat_index));
+					surfaces_list.add(new Sphere(center,rad,mat_index));
 					
 					System.out.println(String.format("Parsed sphere (line %d)", lineNum));
 				} else if (code.equals("pln")) {
@@ -171,7 +170,7 @@ public class RayTracer {
 					c=Double.parseDouble(params[2]);
 					offset=Double.parseDouble(params[3]);
 					int mat_index=Integer.parseInt(params[4]);
-					pln_list.add(new InfinitePlane(a,b,c,offset,mat_index));
+					surfaces_list.add(new InfinitePlane(a,b,c,offset,mat_index));
 					
 					System.out.println(String.format("Parsed plane (line %d)", lineNum));
 					
@@ -185,7 +184,7 @@ public class RayTracer {
 					Point p2=new Point(Double.parseDouble(params[3]),Double.parseDouble(params[4]),Double.parseDouble(params[5]));
 					Point p3=new Point(Double.parseDouble(params[6]),Double.parseDouble(params[7]),Double.parseDouble(params[8]));
 					int mat_index=Integer.parseInt(params[9]);
-					trg_list.add(new Triangle(p1,p2,p3,mat_index));
+					surfaces_list.add(new Triangle(p1,p2,p3,mat_index));
 					
 					System.out.println(String.format("Parsed triangle (line %d)", lineNum));
 					

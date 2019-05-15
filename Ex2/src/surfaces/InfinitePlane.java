@@ -43,5 +43,11 @@ public class InfinitePlane extends Surfaces {
 		return "IP.: " + a + "*x + " + b + "*y " + c + " = 0";
 
 	}
+	
+	@Override
+	public Point getIntersection(Point p, Vector dir) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

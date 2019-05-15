@@ -4,12 +4,9 @@
 *in the plane constructor we must make sure that the two vector arn't the same or the 3 point aren't on the same vector
 * generate perpendicular vectors
 
-8.5:
-* in vector class with the method (chain cross product):
-	-we change the x and use it again 
-
-
 9.5:aubaida
 *in Class RayTracer.java:
 	in the classes ,i added the mat_index field --> we must change it to Material mat
- * i changed the triangle fields from vectors to points 
+ 
+ 15.5:
+ **the method getIntersection returns point ?? should we change it to double (t)

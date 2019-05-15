@@ -2,7 +2,7 @@ package surfaces;
 
 import myUtils.Point;
 import myUtils.Vector;
-
+import myUtils.Vector;
 public class Triangle extends Surfaces {
 
 	public Point p1, p2, p3;
@@ -21,6 +21,14 @@ public class Triangle extends Surfaces {
 	@Override
 	public String toString() {
 		return "Tr.: v1="+p1+", v2="+p2+", v3="+p3;
+	}
+
+
+
+	@Override
+	public Point getIntersection(Point p,Vector dir) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 
