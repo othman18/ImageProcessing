@@ -11,18 +11,13 @@ public class Vector {
 		this.z = z;
 
 		length=Math.sqrt(x*x+y*y+z*z);
-		System.out.println("RGB not added yet!");
 	}
 	/** make a vector from two points */
-	/*public Vector(Point point1,Point point2){
-		this.p1=point1;
-		this.p2=point2;
-		this.x=p1.x-p2.x;
-		this.y=p1.y-p2.y;
-		this.z=p1.z-p2.z;
-		isMadeFromPoints=1;
-		System.out.println("RGB not added yet!");
-	}*/
+	public Vector(Point point1,Point point2){
+		this.x=point1.x-point2.x;
+		this.y=point1.y-point2.y;
+		this.z=point1.z-point2.z;
+	}
 
 	/** chain dot product */
 	public double dotProduct(Vector v) {
@@ -35,13 +30,19 @@ public class Vector {
 	public static double dotProduct(Vector v1, Vector v2) {
 		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 	}
+	
+	
+	
+	/** bedha tzbeeeeeee6*/
+	public static double dotProduct(Vector v1, Point v2) {
+		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+	}
 
 	/** chain cross product */
 	public Vector crossProduct(Vector v) {
 		this.x = this.y * v.z - (this.z * v.y);
 		this.y = this.x * v.z - (this.z * v.x);
 		this.z = this.x * v.y - (this.y * v.x);
-	//	isMadeFromPoints=0;
 		return this;
 	}
 
@@ -77,6 +78,13 @@ public class Vector {
 		double x = this.x*c;
 		double y = this.y*c;
 		double z = this.z*c;
+		return new Vector(x,y,z);
+	}
+	/** scale vector with c */
+	public Vector mult(Point c) {
+		double x = this.x*c.x;
+		double y = this.y*c.y;
+		double z = this.z*c.z;
 		return new Vector(x,y,z);
 	}
 

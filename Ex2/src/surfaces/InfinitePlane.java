@@ -30,10 +30,13 @@ public class InfinitePlane extends Surfaces {
 	}
 	/** update the offset*/
 	public InfinitePlane updateOffset(Point p){
-		this.d=-(a*p.x+b*p.y+c*p.z);;
+		this.d=-(a*p.x+b*p.y+c*p.z); 
 		return this;
 	}
 	
+	public Vector getNormal(){
+		return new Vector(a,b,c);
+	}
 	public type getType() {
 		return type.infinitePlane;
 	}
@@ -45,9 +48,11 @@ public class InfinitePlane extends Surfaces {
 	}
 	
 	@Override
-	public Point getIntersection(Point p, Vector dir) {
+	public Point getIntersection(Point p, Vector direction) {
 		// TODO Auto-generated method stub
-		return null;
+		Vector normal=getNormal();
+		double t=-(Vector.dotProduct(normal,p)+d)/(Vector.dotProduct(normal, direction));
+		return Point.findPoint(p, direction, t);
 	}
 
 }
