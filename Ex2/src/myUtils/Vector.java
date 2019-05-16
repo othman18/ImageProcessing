@@ -17,6 +17,7 @@ public class Vector {
 		this.x=point1.x-point2.x;
 		this.y=point1.y-point2.y;
 		this.z=point1.z-point2.z;
+		length=Math.sqrt(x*x+y*y+z*z);
 	}
 
 	/** chain dot product */

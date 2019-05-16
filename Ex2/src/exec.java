@@ -11,9 +11,9 @@ public class exec {
 		//Vector v2=new Vector(300000,1,-1);
 		//InfinitePlane plane=new InfinitePlane(v1,v2);
 		//Triangle T=new Triangle(p1,p2,p3,0);
-	//	Sphere s=new Sphere(new Point(3,2,1),1,0);
-		InfinitePlane plane=new InfinitePlane(-1,-5,-3,-12,0);
-		System.out.println(plane.getIntersection(new Point(0,0,0), new Vector(-3.7,-3.45,2.98)));
+		Sphere s=new Sphere(new Point(3,2,1),3,0);
+	//	InfinitePlane plane=new InfinitePlane(-1,-5,-3,-12,0);
+		System.out.println(s.getIntersection(new Point(5,3,4), new Vector(-4.14,-0.49,-3)));
 		return ;
 	}
 }

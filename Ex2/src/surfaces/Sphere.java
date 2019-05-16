@@ -30,14 +30,16 @@ public class Sphere extends Surfaces {
 	@Override
 	public Point getIntersection(Point p, Vector direction) {
 		// TODO Auto-generated method stub
-		Vector L = new Vector(center.x - p.x, center.y - p.y, center.z - p.z);
+		Vector L = new Vector(p,center);
 		double tca = Vector.dotProduct(L, direction);
 		if (tca < 0)
 			return null;
 		double d = Vector.dotProduct(L, L) - tca * tca;
 		if (d > radius * radius)
 			return null;
+		System.out.println("d="+d+", tca="+tca+", l*l="+Vector.dotProduct(L, L)+", rad2="+radius*radius);
 		double t = tca - Math.sqrt(radius * radius - d);
+		System.out.println("t="+t);
 		return Point.findPoint(p, direction, t);
 	}
 
