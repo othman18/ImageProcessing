@@ -2,7 +2,9 @@ package myUtils;
 
 public class Color {
 
-	int R, G, B;
+	int R;
+	int G;
+	int B;
 
 	public Color(double[] RGB) {
 		R = (int) RGB[0] * 255;

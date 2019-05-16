@@ -12,6 +12,6 @@ public class Material {
 		PhongSpecularityCoefficient=phong_coe;
 		transparency=transparency_value;
 	}
-
+	
 	
 }

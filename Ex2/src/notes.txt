@@ -10,3 +10,6 @@
  
  15.5:
  **the method getIntersection returns point ?? should we change it to double (t)
+ 
+ sphere intersection ...cheeeeck
+ 
