@@ -30,6 +30,7 @@ public class Triangle extends Surfaces {
 		
 		return 0.5*vNew.length;
 		}
+	/**check if a point in a triangle*/
 	private boolean checkIfInTriangle(Point p0,Point p){
 		Boolean side1=checkSide(this.p2,this.p1,p0,p);
 		Boolean side2=checkSide(this.p3,this.p2,p0,p);
@@ -38,6 +39,7 @@ public class Triangle extends Surfaces {
 		
 		return side1 & side2 & side3;
 	}
+	/**checks if the point above the plane(the 3 points) */
 	private Boolean checkSide(Point t1, Point t2, Point p0, Point p) {
 		// TODO Auto-generated method stub
 		Vector v1=new Vector(p0,t1);
@@ -56,9 +58,11 @@ public class Triangle extends Surfaces {
 		Vector v1=new Vector(p1,p2);
 		Vector v2=new Vector(p1,p3);
 		System.out.println("v1:"+v1+", v2:"+v2);
+		//making a plane which speared out from two vectors
 		InfinitePlane plane=new InfinitePlane(v1,v2);
 		plane.updateOffset(p1);
 		System.out.println(plane);
+		//finding the intersection point between the ray and the plane
 		Point intersectPoint=plane.getIntersection(p,dir);
 		System.out.println("1");
 		if (intersectPoint==null )
@@ -72,6 +76,8 @@ public class Triangle extends Surfaces {
 		if (originalArea!=acc)
 			return null;
 		System.out.println("trueeeeeeeeeeeeeeeeeeeee");*/
+		
+		//checks if the intersect point is inside the triangle
 		if(checkIfInTriangle(p,intersectPoint)==false)
 			return null;
 		return intersectPoint;
