@@ -47,6 +47,7 @@ public class InfinitePlane extends Surfaces {
 	}
 	
 	@Override
+	//finding the intersection point using the slides we showed in the class
 	public Point getIntersection(Point p, Vector direction) {
 		// TODO Auto-generated method stub
 		Vector normal=getNormal();

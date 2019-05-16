@@ -53,6 +53,7 @@ public class Triangle extends Surfaces {
 	}
 
 	@Override
+	/**finding the intersection point using the slides we showed in the class*/
 	public Point getIntersection(Point p,Vector dir) {
 		// TODO Auto-generated method stub
 		Vector v1=new Vector(p1,p2);
