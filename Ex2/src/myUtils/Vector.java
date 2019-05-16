@@ -13,7 +13,7 @@ public class Vector {
 		length=Math.sqrt(x*x+y*y+z*z);
 	}
 	/** make a vector from two points */
-	public Vector(Point point1,Point point2){
+	public Vector(Point point2,Point point1){
 		this.x=point1.x-point2.x;
 		this.y=point1.y-point2.y;
 		this.z=point1.z-point2.z;
@@ -41,7 +41,7 @@ public class Vector {
 	/** chain cross product */
 	public Vector crossProduct(Vector v) {
 		this.x = this.y * v.z - (this.z * v.y);
-		this.y = this.x * v.z - (this.z * v.x);
+		this.y = this.z * v.x - (this.x * v.z);
 		this.z = this.x * v.y - (this.y * v.x);
 		return this;
 	}
@@ -50,7 +50,7 @@ public class Vector {
 	public static Vector crossProduct(Vector v1, Vector v2) {
 		double x, y, z;
 		x = v1.y * v2.z - (v1.z * v2.y);
-		y = v1.x * v2.z - (v1.z * v2.x);
+		y = v1.z * v2.x - (v1.x * v2.z);
 		z = v1.x * v2.y - (v1.y * v2.x);
 		return new Vector(x, y, z);
 	}
@@ -103,9 +103,9 @@ public class Vector {
 		System.out.println("not impllemented yet");
 		return null;
 	}
-	public Vector normalized(Vector v){
+	public static Vector normalized(Vector v){
 		double d=1.0/v.length;
-		return new Vector(x*d,y*d,z*d);
+		return new Vector(v.x*d,v.y*d,v.z*d);
 		
 	}
 

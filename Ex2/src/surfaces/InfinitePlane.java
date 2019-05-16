@@ -29,9 +29,8 @@ public class InfinitePlane extends Surfaces {
 		return new InfinitePlane(v.x,v.y,v.z,0,0);	
 	}
 	/** update the offset*/
-	public InfinitePlane updateOffset(Point p){
+	public void  updateOffset(Point p){
 		this.d=-(a*p.x+b*p.y+c*p.z); 
-		return this;
 	}
 	
 	public Vector getNormal(){
@@ -43,7 +42,7 @@ public class InfinitePlane extends Surfaces {
 
 	@Override
 	public String toString() {
-		return "IP.: " + a + "*x + " + b + "*y " + c + " = 0";
+		return "IP.: " + a + "*x + " + b + "*y +" + c +"*z +"+d+ " = 0";
 
 	}
 	
