@@ -54,7 +54,7 @@ public class Triangle extends Surfaces {
 
 	@Override
 	/**finding the intersection point using the slides we showed in the class*/
-	public Point getIntersection(Point p,Vector dir) {
+	public double getIntersection(Point p,Vector dir) {
 		// TODO Auto-generated method stub
 		Vector v1=new Vector(p1,p2);
 		Vector v2=new Vector(p1,p3);
@@ -64,10 +64,10 @@ public class Triangle extends Surfaces {
 		plane.updateOffset(p1);
 		System.out.println(plane);
 		//finding the intersection point between the ray and the plane
-		Point intersectPoint=plane.getIntersection(p,dir);
+		double t=plane.getIntersection(p,dir);
 		System.out.println("1");
-		if (intersectPoint==null )
-				return null;
+		if (t==-1 )
+				return -1;
 		/*double acc=0.0;
 		acc+=triangleArea(p1,p2,intersectPoint);
 		acc+=triangleArea(p1,p3,intersectPoint);
@@ -77,11 +77,11 @@ public class Triangle extends Surfaces {
 		if (originalArea!=acc)
 			return null;
 		System.out.println("trueeeeeeeeeeeeeeeeeeeee");*/
-		
+		Point intersectionPoint=Point.findPoint(p,dir, t);
 		//checks if the intersect point is inside the triangle
-		if(checkIfInTriangle(p,intersectPoint)==false)
-			return null;
-		return intersectPoint;
+		if(checkIfInTriangle(p,intersectionPoint)==false)
+			return -1;
+		return t;
 	}
 
 

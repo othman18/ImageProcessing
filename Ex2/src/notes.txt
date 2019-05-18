@@ -11,5 +11,15 @@
  15.5:
  **the method getIntersection returns point ?? should we change it to double (t)
  
- sphere intersection ...cheeeeck
  
+ 
+ 18/5:
+ 
+ *the camera class updated..and:
+ 			*check if the axises are right or not :camera direction the z-axis and the upvector is y-axis ??
+ 			*??why in their code written one with negative and one positive : 
+ 					p0.add(right,-cam.sc_width/2);    ???
+ 					p0.add(upwards,cam.sc_height/2); ???
+ 
+ *i added an assistant class .
+ *i updated the return type of get intersection in Surfaces abstract class to t(was the intersection point)

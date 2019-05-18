@@ -9,7 +9,7 @@ public abstract class Surfaces {
 	enum type {triangle,sphere,infinitePlane};
 	
 	public abstract type getType();
-	public abstract Point getIntersection(Point p,Vector dir);
+	public abstract double getIntersection(Point p,Vector dir);
 	public abstract  String toString();
 
 }

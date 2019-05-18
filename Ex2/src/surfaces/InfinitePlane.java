@@ -48,11 +48,11 @@ public class InfinitePlane extends Surfaces {
 	
 	@Override
 	//finding the intersection point using the slides we showed in the class
-	public Point getIntersection(Point p, Vector direction) {
+	public double getIntersection(Point p, Vector direction) {
 		// TODO Auto-generated method stub
 		Vector normal=getNormal();
 		double t=-(Vector.dotProduct(normal,p)+d)/(Vector.dotProduct(normal, direction));
-		return Point.findPoint(p, direction, t);
+		return t;
 	}
 
 }
