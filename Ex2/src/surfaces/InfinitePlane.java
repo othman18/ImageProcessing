@@ -23,8 +23,8 @@ public class InfinitePlane extends Surfaces {
 		this.a = normal.x;
 		this.b = normal.y;
 		this.c = normal.z;
-//		Point p1=normal.p1;
-//		this.d=-(a*p1.x+b*p1.y+c*p1.z);
+		// Point p1=normal.p1;
+		// this.d=-(a*p1.x+b*p1.y+c*p1.z);
 	}
 
 	/** make an perpendicular plane */

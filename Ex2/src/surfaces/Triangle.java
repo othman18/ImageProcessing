@@ -57,7 +57,9 @@ public class Triangle extends Surfaces {
 	}
 
 	@Override
-	/** finding the intersection point using the slides we showed in the class */
+	/**
+	 * finding the intersection point using the slides we showed in the class
+	 */
 	public double getIntersection(Point p, Vector dir) {
 		// TODO Auto-generated method stub
 		Vector v1 = new Vector(p1, p2);
@@ -76,8 +78,8 @@ public class Triangle extends Surfaces {
 		 * double acc=0.0; acc+=triangleArea(p1,p2,intersectPoint);
 		 * acc+=triangleArea(p1,p3,intersectPoint);
 		 * acc+=triangleArea(p2,p3,intersectPoint); double
-		 * originalArea=triangleArea(p1,p2,p3); System.out.println(originalArea +"-----"
-		 * + acc); if (originalArea!=acc) return null;
+		 * originalArea=triangleArea(p1,p2,p3); System.out.println(originalArea
+		 * +"-----" + acc); if (originalArea!=acc) return null;
 		 * System.out.println("trueeeeeeeeeeeeeeeeeeeee");
 		 */
 		Point intersectionPoint = Point.findPoint(p, dir, t);

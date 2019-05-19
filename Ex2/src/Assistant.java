@@ -16,15 +16,14 @@ public class Assistant {
 				min_t = t;
 				min_primitive = shape;
 			}
-
 		}
-
 		return min_primitive;
 	}
-	public static Point getRelevantPoint(int i, int j, Point p0,Camera cam) {
-		// TODO Auto-generated method stub
-		Point p=new Point(p0.x,p0.y,p0.z);
-		p.addByVector(cam.fixedUpVector,i);
+	
+	/** using the i and j index, change the position of the point according the cam's axis*/
+	public static Point getRelevantPoint(int i, int j, Point p0, Camera cam) {
+		Point p = new Point(p0.x, p0.y, p0.z);
+		p.addByVector(cam.fixedUpVector, i);
 		p.addByVector(cam.x_Axis, j);
 		return p;
 	}

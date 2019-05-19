@@ -41,8 +41,8 @@ public class Camera {
 		p0 = new Point(p0.x - width / 2, p0.y - height / 2, p0.z);
 		return p0;
 	}
-	
-	public double getDistance(){
+
+	public double getDistance() {
 		return screenDistance;
 	}
 

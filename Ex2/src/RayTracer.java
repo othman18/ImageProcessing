@@ -24,7 +24,7 @@ public class RayTracer {
 	public int super_sam_lvl, max_rec_num, root_shadow_rays;
 	public double[] background_RGB = new double[3];
 	Camera cam;
-	Random random=new Random();
+	Random random = new Random();
 
 	/**
 	 * Runs the ray tracer. Takes scene file, output image file and image size
@@ -57,8 +57,6 @@ public class RayTracer {
 			// Render scene:
 			tracer.renderScene(outputFileName);
 
-			// } catch (IOException e) {
-			// System.out.println(e.getMessage());
 		} catch (RayTracerException e) {
 			System.out.println(e.getMessage());
 		} catch (Exception e) {
@@ -88,9 +86,8 @@ public class RayTracer {
 			line = line.trim();
 			++lineNum;
 
-			if (line.isEmpty() || (line.charAt(0) == '#')) { // This line in the
-																// scene file is
-																// a comment
+			if (line.isEmpty() || (line.charAt(0) == '#')) {
+				// This line in the scene file is a comment
 				continue;
 			} else {
 				String code = line.substring(0, 3).toLowerCase();
@@ -116,8 +113,7 @@ public class RayTracer {
 					cam = new Camera(position, lookAtPoint, upVector, screenDistance, screenWidth);
 					System.out.println(String.format("Parsed camera parameters (line %d)", lineNum));
 
-				} else if (code.equals("set")) {// -------------- missing
-												// --------------
+				} else if (code.equals("set")) {
 					// Add code here to parse general settings parameters
 					if (params.length != 6) {
 						System.out.println("general settings input file error");
@@ -155,15 +151,7 @@ public class RayTracer {
 						System.out.println("sphere input file error");
 						return;
 					}
-
 					// Add code here to parse sphere parameters
-
-					// Example (you can implement this in many different ways!):
-					// Sphere sphere = new Sphere();
-					// sphere.setCenter(params[0], params[1], params[2]);
-					// sphere.setRadius(params[3]);
-					// sphere.setMaterial(params[4]);
-
 					Point center = new Point(Double.parseDouble(params[0]), Double.parseDouble(params[1]),
 							Double.parseDouble(params[2]));
 					double rad = Double.parseDouble(params[3]);
@@ -244,50 +232,44 @@ public class RayTracer {
 		byte[] rgbData = new byte[this.imageWidth * this.imageHeight * 3];
 
 		/** camera */
-		double distance = cam.getDistance();
-		Point p0 = cam.findStartPoint(distance, imageWidth, imageHeight);
-		Point p;
-		double addition_height, addition_width;
+		double distance = cam.getDistance(), sam_partition = (1 / ((double) super_sam_lvl)),
+				addition_height, addition_width;
+		Point p, p0 = cam.findStartPoint(distance, imageWidth, imageHeight);
 		double[] p_color;
-		double sam_partition=(1/((double)super_sam_lvl));
 		int super_sam_sqr = super_sam_lvl * super_sam_lvl;
 		Vector ray;
 		for (int i = 0; i < imageHeight; i++) {
 			for (int j = 0; j < imageWidth; j++) {
 				p_color = new double[3];
-				p=Assistant.getRelevantPoint(i,j,p0,cam);
+				p = Assistant.getRelevantPoint(i, j, p0, cam);
 				for (int numSample = 0; numSample < super_sam_sqr; numSample++) {
-					
-					/**find the additions per area index*/
-					addition_height=(numSample%super_sam_lvl+random.nextDouble())*sam_partition;
-					addition_width=(numSample/super_sam_lvl+random.nextDouble())*sam_partition;
-					
-					/**redirect the ray*/
-					ray=new Vector(p.x,p.y,p.z);
+
+					/* find the additions per area index */
+					addition_height = (numSample % super_sam_lvl + random.nextDouble()) * sam_partition;
+					addition_width = (numSample / super_sam_lvl + random.nextDouble()) * sam_partition;
+
+					/* redirect the ray */
+					ray = new Vector(p.x, p.y, p.z);
 					ray.add(cam.x_Axis.mult(addition_width));
 					ray.add(cam.fixedUpVector.mult(addition_height));
 					ray.normalized();
-					
-					double[] sample_color=rayHitColor(p,ray);
-					
-					p_color[0]+=sample_color[0];
-					p_color[1]+=sample_color[1];
-					p_color[2]+=sample_color[2];
-			
+
+					double[] sample_color = rayHitColor(p, ray);
+
+					p_color[0] += sample_color[0];
+					p_color[1] += sample_color[1];
+					p_color[2] += sample_color[2];
+
 				}
-				rgbData[(i*this.imageWidth+j)*3]=(byte) Math.round(255*p_color[0]/super_sam_sqr);
-				rgbData[(i*this.imageWidth+j)*3+1] = (byte) Math.round(255*p_color[1]/super_sam_sqr);
-				rgbData[(i*this.imageWidth+j)*3+2]=  (byte) Math.round(255*p_color[2]/super_sam_sqr);
-				
+				rgbData[(i * this.imageWidth + j) * 3] = (byte) Math.round(255 * p_color[0] / super_sam_sqr);
+				rgbData[(i * this.imageWidth + j) * 3 + 1] = (byte) Math.round(255 * p_color[1] / super_sam_sqr);
+				rgbData[(i * this.imageWidth + j) * 3 + 2] = (byte) Math.round(255 * p_color[2] / super_sam_sqr);
+
 			}
 		}
 		long endTime = System.currentTimeMillis();
 		Long renderTime = endTime - startTime;
 
-		// The time is measured for your own conveniece, rendering speed will
-		// not affect
-		// your score
-		// unless it is exceptionally slow (more than a couple of minutes)
 		System.out.println("Finished rendering scene in " + renderTime.toString() + " milliseconds.");
 
 		// This is already implemented, and should work without adding any code.
