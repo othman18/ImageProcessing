@@ -1,8 +1,8 @@
 package myUtils;
 
 public class Material {
-	Color diffuseColor, specularColor, reflectionColor; // RGB
-	double transparency, PhongSpecularityCoefficient;
+	public Color diffuseColor, specularColor, reflectionColor; // RGB
+	public double transparency, PhongSpecularityCoefficient;
 
 	public Material(double[] diffuse_color, double[] specular_color, double[] reflection_color, double phong_coe,
 			double transparency_value) {

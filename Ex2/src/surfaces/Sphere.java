@@ -8,7 +8,7 @@ public class Sphere extends Surfaces {
 
 	double radius;
 	Point center;
-	int material_index;
+	public Point SpherePoint; // used for calculating the normal
 
 	public Sphere(Point center, double radius, int index) {
 		this.center = center;
@@ -43,4 +43,13 @@ public class Sphere extends Surfaces {
 		return t;
 	}
 
+	public void setNormalPoint(Point p) {
+		SpherePoint = p;
+	}
+
+	public Vector getNormal() {
+		Vector normal = new Vector(center, SpherePoint);
+		normal.normalise();
+		return normal;
+	}
 }

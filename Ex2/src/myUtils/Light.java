@@ -1,7 +1,7 @@
 package myUtils;
 
 public class Light {
-	Point position;
+	public Point position;
 	Color color; // RGB
 	double specularIntensity, shadowIntensity, lightRadius;
 

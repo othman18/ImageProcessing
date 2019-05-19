@@ -5,8 +5,9 @@ import myUtils.Vector;
 
 public abstract class Surfaces {
 	type myType;
+	public int material_index;
 
-	enum type {
+	public enum type {
 		triangle, sphere, infinitePlane
 	};
 
@@ -15,5 +16,7 @@ public abstract class Surfaces {
 	public abstract double getIntersection(Point p, Vector dir);
 
 	public abstract String toString();
+	
+	public abstract Vector getNormal();
 
 }

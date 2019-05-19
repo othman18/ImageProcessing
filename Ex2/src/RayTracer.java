@@ -13,6 +13,8 @@ import java.util.Random;
 import myUtils.*;
 
 import javax.imageio.ImageIO;
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
+
 import surfaces.*;
 
 /**
@@ -21,10 +23,13 @@ import surfaces.*;
 public class RayTracer {
 
 	public int imageWidth, imageHeight;
-	public int super_sam_lvl, max_rec_num, root_shadow_rays;
+	public int superSampleLevel, maxRecursionNum, root_shadow_rays;
 	public double[] background_RGB = new double[3];
 	Camera cam;
 	Random random = new Random();
+	List<Material> mat_list;
+	List<Surfaces> surfaces_list;
+	List<Light> lgt_list;
 
 	/**
 	 * Runs the ray tracer. Takes scene file, output image file and image size
@@ -78,9 +83,9 @@ public class RayTracer {
 		System.out.println("Started parsing scene file " + sceneFileName);
 
 		// init the lists
-		List<Material> mat_list = new ArrayList<>();
-		List<Surfaces> surfaces_list = new ArrayList<>();
-		List<Light> lgt_list = new ArrayList<>();
+		mat_list = new ArrayList<>();
+		surfaces_list = new ArrayList<>();
+		lgt_list = new ArrayList<>();
 
 		while ((line = r.readLine()) != null) {
 			line = line.trim();
@@ -123,8 +128,8 @@ public class RayTracer {
 					background_RGB[1] = Double.parseDouble(params[1]);
 					background_RGB[2] = Double.parseDouble(params[2]);
 					root_shadow_rays = Integer.parseInt(params[3]);
-					max_rec_num = Integer.parseInt(params[4]);
-					super_sam_lvl = Integer.parseInt(params[5]);
+					maxRecursionNum = Integer.parseInt(params[4]);
+					superSampleLevel = Integer.parseInt(params[5]);
 
 					System.out.println(String.format("Parsed general settings (line %d)", lineNum));
 
@@ -232,11 +237,11 @@ public class RayTracer {
 		byte[] rgbData = new byte[this.imageWidth * this.imageHeight * 3];
 
 		/** camera */
-		double distance = cam.getDistance(), sam_partition = (1 / ((double) super_sam_lvl)),
-				addition_height, addition_width;
+		double distance = cam.getDistance(), sam_partition = (1 / ((double) superSampleLevel)), addition_height,
+				addition_width;
 		Point p, p0 = cam.findStartPoint(distance, imageWidth, imageHeight);
 		double[] p_color;
-		int super_sam_sqr = super_sam_lvl * super_sam_lvl;
+		int super_sam_sqr = superSampleLevel * superSampleLevel;
 		Vector ray;
 		for (int i = 0; i < imageHeight; i++) {
 			for (int j = 0; j < imageWidth; j++) {
@@ -245,16 +250,16 @@ public class RayTracer {
 				for (int numSample = 0; numSample < super_sam_sqr; numSample++) {
 
 					/* find the additions per area index */
-					addition_height = (numSample % super_sam_lvl + random.nextDouble()) * sam_partition;
-					addition_width = (numSample / super_sam_lvl + random.nextDouble()) * sam_partition;
+					addition_height = (numSample % superSampleLevel + random.nextDouble()) * sam_partition;
+					addition_width = (numSample / superSampleLevel + random.nextDouble()) * sam_partition;
 
 					/* redirect the ray */
 					ray = new Vector(p.x, p.y, p.z);
 					ray.add(cam.x_Axis.mult(addition_width));
 					ray.add(cam.fixedUpVector.mult(addition_height));
-					ray.normalized();
+					ray.normalise();
 
-					double[] sample_color = rayHitColor(p, ray);
+					double[] sample_color = rayHitColor(p, ray, 0);
 
 					p_color[0] += sample_color[0];
 					p_color[1] += sample_color[1];
@@ -279,13 +284,67 @@ public class RayTracer {
 
 	}
 
-	private double[] rayHitColor(Point p, Vector ray) {
-		// TODO Auto-generated method stub
+	private double[] rayHitColor(Point p, Vector ray, int recursionNum) {
+		if (recursionNum == maxRecursionNum)
+			return new double[] { 0, 0, 0 };
+
+		Surfaces intersectionShape = Assistant.findIntersection(p, ray, surfaces_list);
+		if (intersectionShape == null)
+			return background_RGB;
+
+		double t = intersectionShape.getIntersection(p, ray);
+		Point intersectionPoint = Point.findPoint(p, ray, t);
+
+		/*
+		 * 
+		 * do the transparancy and the reflection !!!!!!!!!!!
+		 */
+
+		for (Light lgt : lgt_list) {
+			Color p_color = getColor(intersectionPoint, ray, intersectionShape, lgt);
+		}
 		return null;
 	}
 
 	//////////////////////// FUNCTIONS TO SAVE IMAGES IN PNG FORMAT
 	//////////////////////// //////////////////////////////////////////
+
+	private Color getColor(Point intersectionPoint, Vector ray, Surfaces intersectionShape, Light lgt) {
+
+		Material mat = mat_list.get(intersectionShape.material_index);
+		Color diffuseColor = mat.diffuseColor;
+		Color specularColor = mat.specularColor;
+		Vector lightDirection = new Vector(intersectionPoint, lgt.position);
+		lightDirection.normalise();
+		if (intersectionShape.getType() == Surfaces.type.sphere)
+			((Sphere) intersectionShape).setNormalPoint(intersectionPoint);
+		
+		Vector normal = intersectionShape.getNormal();
+		if (Vector.scalarMul(visionDir, normal) > 0)
+			normal.scale(-1);
+		double alpha = (Vector.scalarMul(lightDir, normal));
+		if (alpha <= 0) {
+			diffuseColor.scale(0);
+			return diffuseColor;
+		}
+		diffuseColor.scale(alpha);
+		if (specularColor.get(0) != 0 || specularColor.get(1) != 0 || specularColor.get(2) != 0) {
+
+			Vector reflect = new Vector(normal);
+			reflect.scale(2 * Vector.scalarMul(lightDir, normal));
+			reflect.add(lightDir, -1);
+			alpha = Vector.scalarMul(visionDir, reflect);
+			if (alpha < 0) {
+				alpha = Math.pow(alpha, mat.getPhong());
+				specularColor.scale(alpha);
+				diffuseColor.add(specularColor, light.getSpecular());
+			}
+		}
+		diffuseColor.normalize();
+		diffuseColor.mul(light.getIntensity());
+
+		return diffuseColor;
+	}
 
 	/*
 	 * Saves RGB data as an image in png format to the specified location.

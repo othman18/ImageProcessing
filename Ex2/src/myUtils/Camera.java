@@ -30,7 +30,7 @@ public class Camera {
 	private void translateAxises() {
 		// TODO Auto-generated method stub
 		cameraDirection = new Vector(position, lookAtPoint);
-		cameraDirection.normalized();
+		cameraDirection.normalise();
 		x_Axis = Vector.crossProduct(cameraDirection, upVector);
 		fixedUpVector = Vector.crossProduct(x_Axis, cameraDirection);
 

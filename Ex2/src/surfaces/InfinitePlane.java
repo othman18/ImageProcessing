@@ -6,7 +6,7 @@ import myUtils.Vector;
 public class InfinitePlane extends Surfaces {
 
 	double a, b, c, d = 0; // a*x+b*y+ c*z +d = 0
-	int material_index;
+
 
 	/** make a plane from three points */
 	public InfinitePlane(double a, double b, double c, double d, int index) {

@@ -108,7 +108,7 @@ public class Vector {
 		return null;
 	}
 
-	public void normalized() {
+	public void normalise() {
 		double d = 1.0 / this.length;
 		this.x = this.x * d;
 		this.y = this.y * d;

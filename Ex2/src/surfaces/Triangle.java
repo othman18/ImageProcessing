@@ -7,13 +7,13 @@ import myUtils.Vector;
 public class Triangle extends Surfaces {
 
 	public Point p1, p2, p3;
-	int mat_index;
+
 
 	public Triangle(Point p1, Point p2, Point p3, int index) {
 		this.p1 = p1;
 		this.p2 = p2;
 		this.p3 = p3;
-		this.mat_index = index;
+		this.material_index = index;
 	}
 
 	public type getType() {
@@ -49,7 +49,7 @@ public class Triangle extends Surfaces {
 		Vector v1 = new Vector(p0, t1);
 		Vector v2 = new Vector(p0, t2);
 		Vector N = Vector.crossProduct(v2, v1);
-		N.normalized();
+		N.normalise();
 		double d1 = -(Vector.dotProduct(N, p0));
 		if ((Vector.dotProduct(N, p) + d1) < 0)
 			return false;
@@ -61,7 +61,6 @@ public class Triangle extends Surfaces {
 	 * finding the intersection point using the slides we showed in the class
 	 */
 	public double getIntersection(Point p, Vector dir) {
-		// TODO Auto-generated method stub
 		Vector v1 = new Vector(p1, p2);
 		Vector v2 = new Vector(p1, p3);
 		System.out.println("v1:" + v1 + ", v2:" + v2);
@@ -74,19 +73,24 @@ public class Triangle extends Surfaces {
 		System.out.println("1");
 		if (t == -1)
 			return -1;
-		/*
-		 * double acc=0.0; acc+=triangleArea(p1,p2,intersectPoint);
-		 * acc+=triangleArea(p1,p3,intersectPoint);
-		 * acc+=triangleArea(p2,p3,intersectPoint); double
-		 * originalArea=triangleArea(p1,p2,p3); System.out.println(originalArea
-		 * +"-----" + acc); if (originalArea!=acc) return null;
-		 * System.out.println("trueeeeeeeeeeeeeeeeeeeee");
-		 */
+		
 		Point intersectionPoint = Point.findPoint(p, dir, t);
 		// checks if the intersect point is inside the triangle
 		if (checkIfInTriangle(p, intersectionPoint) == false)
 			return -1;
 		return t;
+	}
+
+	@Override
+	public Vector getNormal() {
+		Vector v1 = new Vector(p1, p2);
+		Vector v2 = new Vector(p1, p3);
+		System.out.println("v1:" + v1 + ", v2:" + v2);
+		// making a plane which speared out from two vectors
+		InfinitePlane plane = new InfinitePlane(v1, v2);
+		Vector normal = plane.getNormal();
+		normal.normalise();
+		return normal;
 	}
 
 }
