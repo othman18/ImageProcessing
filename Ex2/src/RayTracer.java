@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import myUtils.*;
 
@@ -23,10 +24,11 @@ public class RayTracer {
 	public int super_sam_lvl, max_rec_num, root_shadow_rays;
 	public double[] background_RGB = new double[3];
 	Camera cam;
+	Random random=new Random();
 
 	/**
-	 * Runs the ray tracer. Takes scene file, output image file and image size as
-	 * input.
+	 * Runs the ray tracer. Takes scene file, output image file and image size
+	 * as input.
 	 */
 	public static void main(String[] args) {
 
@@ -55,8 +57,8 @@ public class RayTracer {
 			// Render scene:
 			tracer.renderScene(outputFileName);
 
-//		} catch (IOException e) {
-//			System.out.println(e.getMessage());
+			// } catch (IOException e) {
+			// System.out.println(e.getMessage());
 		} catch (RayTracerException e) {
 			System.out.println(e.getMessage());
 		} catch (Exception e) {
@@ -86,7 +88,9 @@ public class RayTracer {
 			line = line.trim();
 			++lineNum;
 
-			if (line.isEmpty() || (line.charAt(0) == '#')) { // This line in the scene file is a comment
+			if (line.isEmpty() || (line.charAt(0) == '#')) { // This line in the
+																// scene file is
+																// a comment
 				continue;
 			} else {
 				String code = line.substring(0, 3).toLowerCase();
@@ -112,7 +116,8 @@ public class RayTracer {
 					cam = new Camera(position, lookAtPoint, upVector, screenDistance, screenWidth);
 					System.out.println(String.format("Parsed camera parameters (line %d)", lineNum));
 
-				} else if (code.equals("set")) {// -------------- missing --------------
+				} else if (code.equals("set")) {// -------------- missing
+												// --------------
 					// Add code here to parse general settings parameters
 					if (params.length != 6) {
 						System.out.println("general settings input file error");
@@ -238,19 +243,49 @@ public class RayTracer {
 		// Create a byte array to hold the pixel data:
 		byte[] rgbData = new byte[this.imageWidth * this.imageHeight * 3];
 
-		// Put your ray tracing code here!
-		//
-		// Write pixel color values in RGB format to rgbData:
-		// Pixel [x, y] red component is in rgbData[(y * this.imageWidth + x) * 3]
-		// green component is in rgbData[(y * this.imageWidth + x) * 3 + 1]
-		// blue component is in rgbData[(y * this.imageWidth + x) * 3 + 2]
-		//
-		// Each of the red, green and blue components should be a byte, i.e. 0-255
-
+		/** camera */
+		double distance = cam.getDistance();
+		Point p0 = cam.findStartPoint(distance, imageWidth, imageHeight);
+		Point p;
+		double addition_height, addition_width;
+		double[] p_color;
+		double sam_partition=(1/((double)super_sam_lvl));
+		int super_sam_sqr = super_sam_lvl * super_sam_lvl;
+		Vector ray;
+		for (int i = 0; i < imageHeight; i++) {
+			for (int j = 0; j < imageWidth; j++) {
+				p_color = new double[3];
+				p=Assistant.getRelevantPoint(i,j,p0,cam);
+				for (int numSample = 0; numSample < super_sam_sqr; numSample++) {
+					
+					/**find the additions per area index*/
+					addition_height=(numSample%super_sam_lvl+random.nextDouble())*sam_partition;
+					addition_width=(numSample/super_sam_lvl+random.nextDouble())*sam_partition;
+					
+					/**redirect the ray*/
+					ray=new Vector(p.x,p.y,p.z);
+					ray.add(cam.x_Axis.mult(addition_width));
+					ray.add(cam.fixedUpVector.mult(addition_height));
+					ray.normalized();
+					
+					double[] sample_color=rayHitColor(p,ray);
+					
+					p_color[0]+=sample_color[0];
+					p_color[1]+=sample_color[1];
+					p_color[2]+=sample_color[2];
+			
+				}
+				rgbData[(i*this.imageWidth+j)*3]=(byte) Math.round(255*p_color[0]/super_sam_sqr);
+				rgbData[(i*this.imageWidth+j)*3+1] = (byte) Math.round(255*p_color[1]/super_sam_sqr);
+				rgbData[(i*this.imageWidth+j)*3+2]=  (byte) Math.round(255*p_color[2]/super_sam_sqr);
+				
+			}
+		}
 		long endTime = System.currentTimeMillis();
 		Long renderTime = endTime - startTime;
 
-		// The time is measured for your own conveniece, rendering speed will not affect
+		// The time is measured for your own conveniece, rendering speed will
+		// not affect
 		// your score
 		// unless it is exceptionally slow (more than a couple of minutes)
 		System.out.println("Finished rendering scene in " + renderTime.toString() + " milliseconds.");
@@ -260,6 +295,11 @@ public class RayTracer {
 
 		System.out.println("Saved file " + outputFileName);
 
+	}
+
+	private double[] rayHitColor(Point p, Vector ray) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	//////////////////////// FUNCTIONS TO SAVE IMAGES IN PNG FORMAT
@@ -281,8 +321,8 @@ public class RayTracer {
 	}
 
 	/*
-	 * Producing a BufferedImage that can be saved as png from a byte array of RGB
-	 * values.
+	 * Producing a BufferedImage that can be saved as png from a byte array of
+	 * RGB values.
 	 */
 	public static BufferedImage bytes2RGB(int width, byte[] buffer) {
 		int height = buffer.length / width / 3;

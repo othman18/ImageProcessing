@@ -21,5 +21,12 @@ public class Assistant {
 
 		return min_primitive;
 	}
+	public static Point getRelevantPoint(int i, int j, Point p0,Camera cam) {
+		// TODO Auto-generated method stub
+		Point p=new Point(p0.x,p0.y,p0.z);
+		p.addByVector(cam.fixedUpVector,i);
+		p.addByVector(cam.x_Axis, j);
+		return p;
+	}
 
 }

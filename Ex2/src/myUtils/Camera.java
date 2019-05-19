@@ -12,7 +12,7 @@ public class Camera {
 	// Number of shadow rays
 	// Maximum recursion level
 	// Super sampling level
-	Vector cameraDirection, x_Axis, fixedUpVector;
+	public Vector cameraDirection, x_Axis, fixedUpVector;
 
 	public Camera(Point position, Point lookAtPoint, Vector upVector, double screenDistance, double screenWidth) {
 		this.position = position;
@@ -40,6 +40,10 @@ public class Camera {
 		Point p0 = Point.findPoint(position, cameraDirection, distance);
 		p0 = new Point(p0.x - width / 2, p0.y - height / 2, p0.z);
 		return p0;
+	}
+	
+	public double getDistance(){
+		return screenDistance;
 	}
 
 	@Override

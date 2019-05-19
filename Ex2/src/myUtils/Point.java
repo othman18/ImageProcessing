@@ -22,6 +22,12 @@ public class Point {
 		Point p = new Point(tv.x + p0.x, tv.y + p0.y, tv.z + p0.z);
 		return p;
 	}
+	public void addByVector(Vector v,int num){ 
+		this.x+=v.x*num;
+		this.y+=v.y*num;
+		this.z+=v.z*num;
+		
+	}
 
 	@Override
 	public String toString() {
