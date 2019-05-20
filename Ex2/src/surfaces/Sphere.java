@@ -28,7 +28,6 @@ public class Sphere extends Surfaces {
 	/** return the intersection point if there is */
 	@Override
 	public double getIntersection(Point p, Vector direction) {
-		// TODO Auto-generated method stub
 		Vector L = new Vector(p, center);
 		double tca = Vector.dotProduct(L, direction);
 		if (tca < 0)

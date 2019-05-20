@@ -7,7 +7,6 @@ public class InfinitePlane extends Surfaces {
 
 	double a, b, c, d = 0; // a*x+b*y+ c*z +d = 0
 
-
 	/** make a plane from three points */
 	public InfinitePlane(double a, double b, double c, double d, int index) {
 		this.a = a;
@@ -55,7 +54,6 @@ public class InfinitePlane extends Surfaces {
 	@Override
 	// finding the intersection point using the slides we showed in the class
 	public double getIntersection(Point p, Vector direction) {
-		// TODO Auto-generated method stub
 		Vector normal = getNormal();
 		double t = -(Vector.dotProduct(normal, p) + d) / (Vector.dotProduct(normal, direction));
 		return t;

@@ -8,7 +8,6 @@ public class Triangle extends Surfaces {
 
 	public Point p1, p2, p3;
 
-
 	public Triangle(Point p1, Point p2, Point p3, int index) {
 		this.p1 = p1;
 		this.p2 = p2;
@@ -25,14 +24,6 @@ public class Triangle extends Surfaces {
 		return "Tr.: v1=" + p1 + ", v2=" + p2 + ", v3=" + p3;
 	}
 
-	private double triangleArea(Point p1, Point p2, Point p3) {
-		Vector v1 = new Vector(p1.x - p2.x, p1.y - p2.y, p1.z - p2.z);
-		Vector v2 = new Vector(p1.x - p3.x, p1.y - p3.y, p1.z - p3.z);
-		Vector vNew = Vector.crossProduct(v1, v2);
-
-		return 0.5 * vNew.length;
-	}
-
 	/** check if a point in a triangle */
 	private boolean checkIfInTriangle(Point p0, Point p) {
 		Boolean side1 = checkSide(this.p2, this.p1, p0, p);
@@ -45,7 +36,6 @@ public class Triangle extends Surfaces {
 
 	/** checks if the point above the plane(the 3 points) */
 	private Boolean checkSide(Point t1, Point t2, Point p0, Point p) {
-		// TODO Auto-generated method stub
 		Vector v1 = new Vector(p0, t1);
 		Vector v2 = new Vector(p0, t2);
 		Vector N = Vector.crossProduct(v2, v1);
@@ -73,7 +63,7 @@ public class Triangle extends Surfaces {
 		System.out.println("1");
 		if (t == -1)
 			return -1;
-		
+
 		Point intersectionPoint = Point.findPoint(p, dir, t);
 		// checks if the intersect point is inside the triangle
 		if (checkIfInTriangle(p, intersectionPoint) == false)

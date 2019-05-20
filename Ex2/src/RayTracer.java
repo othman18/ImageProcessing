@@ -320,7 +320,7 @@ public class RayTracer {
 			((Sphere) intersectionShape).setNormalPoint(intersectionPoint);
 		
 		Vector normal = intersectionShape.getNormal();
-		if (Vector.scalarMul(visionDir, normal) > 0)
+		/*if (Vector.scalarMul(visionDir, normal) > 0)
 			normal.scale(-1);
 		double alpha = (Vector.scalarMul(lightDir, normal));
 		if (alpha <= 0) {
@@ -340,9 +340,9 @@ public class RayTracer {
 				diffuseColor.add(specularColor, light.getSpecular());
 			}
 		}
-		diffuseColor.normalize();
+		diffuseColor.normalise();
 		diffuseColor.mul(light.getIntensity());
-
+*/
 		return diffuseColor;
 	}
 

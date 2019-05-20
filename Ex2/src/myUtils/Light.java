@@ -2,11 +2,9 @@ package myUtils;
 
 public class Light {
 	public Point position;
-	Color color; // RGB
+	Color color;
 	double specularIntensity, shadowIntensity, lightRadius;
 
-	// The light received by a surface which is hidden
-	// from the light is multiplied by (1-shadow intensity).
 	public Light(Point pos, double[] col, double spec_intensity, double shadow_indensity, double light_rad) {
 		this.position = pos;
 		this.color = new Color(col);

@@ -7,7 +7,6 @@ public class Point {
 		this.x = x;
 		this.y = y;
 		this.z = z;
-
 	}
 
 	public static double distance(Point p1, Point p2) {
@@ -27,7 +26,6 @@ public class Point {
 		this.x += v.x * num;
 		this.y += v.y * num;
 		this.z += v.z * num;
-
 	}
 
 	@Override

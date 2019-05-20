@@ -16,7 +16,7 @@ public abstract class Surfaces {
 	public abstract double getIntersection(Point p, Vector dir);
 
 	public abstract String toString();
-	
+
 	public abstract Vector getNormal();
 
 }

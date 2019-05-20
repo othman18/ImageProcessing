@@ -26,9 +26,7 @@ public class Vector {
 
 	/** chain dot product */
 	public double dotProduct(Vector v) {
-		// isMadeFromPoints=0;
 		return this.x * v.x + this.y * v.y + this.z * v.z;
-
 	}
 
 	/** return dot product of two vectors */
@@ -67,15 +65,6 @@ public class Vector {
 		return this;
 	}
 
-	/** add two vectors */
-	public Vector add(Vector v1, Vector v2) {
-		double x, y, z;
-		x = v1.x + v2.x;
-		y = v1.y + v2.y;
-		z = v1.z + v2.z;
-		return new Vector(x, y, z);
-	}
-
 	/** scale vector with c */
 	public Vector mult(double c) {
 		double x = this.x * c;
@@ -84,36 +73,11 @@ public class Vector {
 		return new Vector(x, y, z);
 	}
 
-	/** scale vector with c */
-	public Vector mult(Point c) {
-		double x = this.x * c.x;
-		double y = this.y * c.y;
-		double z = this.z * c.z;
-		return new Vector(x, y, z);
-	}
-
-	/** multiply two vectors RGB component wise */
-	public Vector mult(Vector v) {
-		return new Vector(x * v.x, y * v.y, z * v.z);
-	}
-
-	public Vector generateVectorPerpendicular(Vector v) {
-
-		System.out.println("not impllemented yet");
-		return null;
-	}
-
-	public Vector generatePerpendicular(Vector v1, Vector v2) {
-		System.out.println("not impllemented yet");
-		return null;
-	}
-
 	public void normalise() {
 		double d = 1.0 / this.length;
 		this.x = this.x * d;
 		this.y = this.y * d;
 		this.z = this.z * d;
-
 	}
 
 	@Override
