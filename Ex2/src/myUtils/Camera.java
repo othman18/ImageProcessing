@@ -37,7 +37,7 @@ public class Camera {
 		screenHeight = (height/width)*this.screenWidth;
 		Point p0 = Point.findPoint(position, cameraDirection, screenDistance);
 		/*change from minus to plus in p0*/
-		p0 = new Point(p0.x - screenWidth / 2, p0.y + screenHeight / 2, p0.z);
+		p0 = new Point(p0.x + screenWidth / 2, p0.y - screenHeight / 2, p0.z);
 		return p0;
 	}
 
