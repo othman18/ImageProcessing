@@ -1,7 +1,28 @@
 
-4.5:
-	should we even use a point class or simply use the vector class?
-	the pdf says that we use a "vector"...
-	
+
 6.5:	
-in the plane constructor we must make sure that the two vector arn't the same or the 3 point arent on the same vector
+*in the plane constructor we must make sure that the two vector arn't the same or the 3 point aren't on the same vector
+* generate perpendicular vectors
+
+9.5:aubaida
+*in Class RayTracer.java:
+	in the classes ,i added the mat_index field --> we must change it to Material mat
+ 
+ 15.5:
+ **the method getIntersection returns point ?? should we change it to double (t)
+ 
+ 
+ 
+ 18/5:
+ 
+ *the camera class updated..and:
+ 			*check if the axises are right or not :camera direction the z-axis and the upvector is y-axis ??
+ 			*??why in their code written one with negative and one positive : 
+ 					p0.add(right,-cam.sc_width/2);    ???
+ 					p0.add(upwards,cam.sc_height/2); ???
+ 
+ *i added an assistant class .
+ *i updated the return type of get intersection in Surfaces abstract class to t(was the intersection point)
+ 
+ 21/5:
+ change every double to float

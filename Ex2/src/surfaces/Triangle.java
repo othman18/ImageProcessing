@@ -1,15 +1,19 @@
 package surfaces;
 
+import myUtils.Point;
+import myUtils.Vector;
 import myUtils.Vector;
 
 public class Triangle extends Surfaces {
 
-	public Vector v1, v2, v3;
+	public Point p1, p2, p3;
 
-	public Triangle(Vector v1, Vector v2, Vector v3) {
-		this.v1 = v1;
-		this.v2 = v2;
-		this.v3 = v3;
+	public Triangle(Point p1, Point p2, Point p3, int index) {
+		this.p1 = p1;
+		this.p2 = p2;
+		this.p3 = p3;
+		this.material_index = index;
+		myType = type.triangle;
 	}
 
 	public type getType() {
@@ -18,9 +22,66 @@ public class Triangle extends Surfaces {
 
 	@Override
 	public String toString() {
-		return "Tr.: v1="+v1+", v2="+v2+", v3="+v3;
+		return "Tr.: v1=" + p1 + ", v2=" + p2 + ", v3=" + p3;
 	}
 
+	/** check if a point in a triangle */
+	private boolean checkIfInTriangle(Point p0, Point p) {
+		Boolean side1 = checkSide(this.p2, this.p1, p0, p);
+		Boolean side2 = checkSide(this.p3, this.p2, p0, p);
+		Boolean side3 = checkSide(this.p1, this.p3, p0, p);
+		System.out.println(side1 + "," + side2 + "," + side3);
+
+		return side1 & side2 & side3;
+	}
+
+	/** checks if the point above the plane(the 3 points) */
+	private Boolean checkSide(Point t1, Point t2, Point p0, Point p) {
+		Vector v1 = new Vector(p0, t1);
+		Vector v2 = new Vector(p0, t2);
+		Vector N = Vector.crossProduct(v2, v1);
+		N.normalise();
+		double d1 = -(Vector.dotProduct(N, p0));
+		if ((Vector.dotProduct(N, p) + d1) < 0)
+			return false;
+		return true;
+	}
+
+	@Override
+	/**
+	 * finding the intersection point using the slides we showed in the class
+	 */
+	public double getIntersection(Point p, Vector dir) {
+		Vector v1 = new Vector(p1, p2);
+		Vector v2 = new Vector(p1, p3);
+		System.out.println("v1:" + v1 + ", v2:" + v2);
+		// making a plane which speared out from two vectors
+		InfinitePlane plane = new InfinitePlane(v1, v2);
+		plane.updateOffset(p1);
+		System.out.println(plane);
+		// finding the intersection point between the ray and the plane
+		double t = plane.getIntersection(p, dir);
+		System.out.println("1");
+		if (t == -1)
+			return -1;
+
+		Point intersectionPoint = Point.findPoint(p, dir, t);
+		// checks if the intersect point is inside the triangle
+		if (checkIfInTriangle(p, intersectionPoint) == false)
+			return -1;
+		return t;
+	}
+
+	@Override
+	public Vector getNormal() {
+		Vector v1 = new Vector(p1, p2);
+		Vector v2 = new Vector(p1, p3);
+		System.out.println("v1:" + v1 + ", v2:" + v2);
+		// making a plane which speared out from two vectors
+		InfinitePlane plane = new InfinitePlane(v1, v2);
+		Vector normal = plane.getNormal();
+		normal.normalise();
+		return normal;
+	}
 
 }
-

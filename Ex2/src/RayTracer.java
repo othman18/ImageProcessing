@@ -5,28 +5,40 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+
 import myUtils.*;
 
 import javax.imageio.ImageIO;
+
+import surfaces.*;
 
 /**
  * Main class for ray tracing exercise.
  */
 public class RayTracer {
 
-	public int imageWidth;
-	public int imageHeight;
+	public int imageWidth, imageHeight;
+	public int superSampleLevel, maxRecursionNum, root_shadow_rays;
+	public double[] background_RGB = new double[3];
+	Camera cam;
+	Random random = new Random();
+	List<Material> mat_list;
+	List<Surfaces> surfaces_list;
+	List<Light> lgt_list;
 
 	/**
-	 * Runs the ray tracer. Takes scene file, output image file and image size as
-	 * input.
+	 * Runs the ray tracer. Takes scene file, output image file and image size
+	 * as input.
 	 */
 	public static void main(String[] args) {
 
 		try {
 
-			RayTracer tracer = new RayTracer(); 
+			RayTracer tracer = new RayTracer();
 			// Default values:
 			tracer.imageWidth = 500;
 			tracer.imageHeight = 500;
@@ -49,8 +61,6 @@ public class RayTracer {
 			// Render scene:
 			tracer.renderScene(outputFileName);
 
-//		} catch (IOException e) {
-//			System.out.println(e.getMessage());
 		} catch (RayTracerException e) {
 			System.out.println(e.getMessage());
 		} catch (Exception e) {
@@ -69,13 +79,19 @@ public class RayTracer {
 		BufferedReader r = new BufferedReader(fr);
 		String line = null;
 		int lineNum = 0;
-		System.out.println("Started parsing scene file " + sceneFileName);
+		// System.out.println("Started parsing scene file " + sceneFileName);
+
+		// init the lists
+		mat_list = new ArrayList<>();
+		surfaces_list = new ArrayList<>();
+		lgt_list = new ArrayList<>();
 
 		while ((line = r.readLine()) != null) {
 			line = line.trim();
 			++lineNum;
 
-			if (line.isEmpty() || (line.charAt(0) == '#')) { // This line in the scene file is a comment
+			if (line.isEmpty() || (line.charAt(0) == '#')) {
+				// This line in the scene file is a comment
 				continue;
 			} else {
 				String code = line.substring(0, 3).toLowerCase();
@@ -86,45 +102,122 @@ public class RayTracer {
 
 				if (code.equals("cam")) {
 					// Add code here to parse camera parameters
-					if (params.length < 11 || params.length > 11) {
+					if (params.length != 11) {
 						System.out.println("cam input file error");
+						r.close();
 						return;
 					}
-					Vector position = new Vector(Double.parseDouble(params[0]),
-						Double.parseDouble(params[1]),Double.parseDouble(params[2]));
-					Vector lookAtPoint = new Vector(Double.parseDouble(params[3]),
-							Double.parseDouble(params[4]),Double.parseDouble(params[5]));
-					Vector upVector = new Vector(Double.parseDouble(params[6]),
-							Double.parseDouble(params[7]),Double.parseDouble(params[8]));
+					Point position = new Point(Double.parseDouble(params[0]), Double.parseDouble(params[1]),
+							Double.parseDouble(params[2]));
+					Point lookAtPoint = new Point(Double.parseDouble(params[3]), Double.parseDouble(params[4]),
+							Double.parseDouble(params[5]));
+					Vector upVector = new Vector(Double.parseDouble(params[6]), Double.parseDouble(params[7]),
+							Double.parseDouble(params[8]));
 					double screenDistance = Double.parseDouble(params[9]);
 					double screenWidth = Double.parseDouble(params[10]);
-					Camera cam = new Camera(position, lookAtPoint, upVector, screenDistance, screenWidth);
+					cam = new Camera(position, lookAtPoint, upVector, screenDistance, screenWidth);
 					System.out.println(String.format("Parsed camera parameters (line %d)", lineNum));
 
 				} else if (code.equals("set")) {
 					// Add code here to parse general settings parameters
+					if (params.length != 6) {
+						System.out.println("general settings input file error");
+						r.close();
+						return;
+					}
+					background_RGB[0] = Double.parseDouble(params[0]);
+					background_RGB[1] = Double.parseDouble(params[1]);
+					background_RGB[2] = Double.parseDouble(params[2]);
+					root_shadow_rays = Integer.parseInt(params[3]);
+					maxRecursionNum = Integer.parseInt(params[4]);
+					superSampleLevel = Integer.parseInt(params[5]);
 
 					System.out.println(String.format("Parsed general settings (line %d)", lineNum));
+
 				} else if (code.equals("mtl")) {
 					// Add code here to parse material parameters
-
+					if (params.length != 11) {
+						System.out.println("material input file error");
+						r.close();
+						return;
+					}
+					double[] diffuse_color = { Double.parseDouble(params[0]), Double.parseDouble(params[1]),
+							Double.parseDouble(params[2]) };
+					double[] specular_color = { Double.parseDouble(params[3]), Double.parseDouble(params[4]),
+							Double.parseDouble(params[5]) };
+					double[] reflection_color = { Double.parseDouble(params[6]), Double.parseDouble(params[7]),
+							Double.parseDouble(params[8]) };
+					double phong_coe = Double.parseDouble(params[9]);
+					double transparency_value = Double.parseDouble(params[10]);
+					mat_list.add(new Material(diffuse_color, specular_color, reflection_color, phong_coe,
+							transparency_value));
 					System.out.println(String.format("Parsed material (line %d)", lineNum));
-				} else if (code.equals("sph")) {
-					// Add code here to parse sphere parameters
 
-					// Example (you can implement this in many different ways!):
-					// Sphere sphere = new Sphere();
-					// sphere.setCenter(params[0], params[1], params[2]);
-					// sphere.setRadius(params[3]);
-					// sphere.setMaterial(params[4]);
+				} else if (code.equals("sph")) {
+					if (params.length != 5) {
+						System.out.println("sphere input file error");
+						r.close();
+						return;
+					}
+					// Add code here to parse sphere parameters
+					Point center = new Point(Double.parseDouble(params[0]), Double.parseDouble(params[1]),
+							Double.parseDouble(params[2]));
+					double rad = Double.parseDouble(params[3]);
+					int mat_index = Integer.parseInt(params[4]);
+					surfaces_list.add(new Sphere(center, rad, mat_index));
 
 					System.out.println(String.format("Parsed sphere (line %d)", lineNum));
 				} else if (code.equals("pln")) {
 					// Add code here to parse plane parameters
+					if (params.length != 5) {
+						System.out.println("plane input file error");
+						r.close();
+						return;
+					}
+					double a, b, c, offset;
+					a = Double.parseDouble(params[0]);
+					b = Double.parseDouble(params[1]);
+					c = Double.parseDouble(params[2]);
+					offset = Double.parseDouble(params[3]);
+					int mat_index = Integer.parseInt(params[4]);
+					surfaces_list.add(new InfinitePlane(a, b, c, offset, mat_index));
 
 					System.out.println(String.format("Parsed plane (line %d)", lineNum));
+
+				} else if (code.equals("trg")) {
+					// Add code here to parse light parameters
+					if (params.length != 10) {
+						System.out.println("triangle input file error");
+						r.close();
+						return;
+					}
+					Point p1 = new Point(Double.parseDouble(params[0]), Double.parseDouble(params[1]),
+							Double.parseDouble(params[2]));
+					Point p2 = new Point(Double.parseDouble(params[3]), Double.parseDouble(params[4]),
+							Double.parseDouble(params[5]));
+					Point p3 = new Point(Double.parseDouble(params[6]), Double.parseDouble(params[7]),
+							Double.parseDouble(params[8]));
+					int mat_index = Integer.parseInt(params[9]);
+					surfaces_list.add(new Triangle(p1, p2, p3, mat_index));
+
+					System.out.println(String.format("Parsed triangle (line %d)", lineNum));
+
 				} else if (code.equals("lgt")) {
 					// Add code here to parse light parameters
+					if (params.length != 9) {
+						System.out.println("light input file error");
+						r.close();
+						return;
+					}
+					double spec_intensity, shadow_indensity, light_rad;
+					Point pos = new Point(Double.parseDouble(params[0]), Double.parseDouble(params[1]),
+							Double.parseDouble(params[2]));
+					double[] light_color = { Double.parseDouble(params[3]), Double.parseDouble(params[4]),
+							Double.parseDouble(params[5]) };
+					spec_intensity = Double.parseDouble(params[6]);
+					shadow_indensity = Double.parseDouble(params[7]);
+					light_rad = Double.parseDouble(params[8]);
+					lgt_list.add(new Light(pos, light_color, spec_intensity, shadow_indensity, light_rad));
 
 					System.out.println(String.format("Parsed light (line %d)", lineNum));
 				} else {
@@ -132,7 +225,7 @@ public class RayTracer {
 				}
 			}
 		}
-
+		r.close();
 		// It is recommended that you check here that the scene is valid,
 		// for example camera settings and all necessary materials were defined.
 
@@ -149,21 +242,51 @@ public class RayTracer {
 		// Create a byte array to hold the pixel data:
 		byte[] rgbData = new byte[this.imageWidth * this.imageHeight * 3];
 
-		// Put your ray tracing code here!
-		//
-		// Write pixel color values in RGB format to rgbData:
-		// Pixel [x, y] red component is in rgbData[(y * this.imageWidth + x) * 3]
-		// green component is in rgbData[(y * this.imageWidth + x) * 3 + 1]
-		// blue component is in rgbData[(y * this.imageWidth + x) * 3 + 2]
-		//
-		// Each of the red, green and blue components should be a byte, i.e. 0-255
+		/** camera */
+		double distance = cam.getDistance(), sam_width_partition = (cam.screenWidth / ((double) (superSampleLevel*imageWidth)));
+		double addition_width,sam_height_partition = (cam.screenHeight / ((double) (superSampleLevel*imageHeight)));
+		double addition_height;
+		Point p, p0 = cam.findStartPoint(distance, imageWidth, imageHeight);
+		double[] p_color;
+		int super_sam_sqr = superSampleLevel * superSampleLevel;
+		Vector ray;
+		for (int i = 0; i < imageHeight; i++) {
+			for (int j = 0; j < imageWidth; j++) {
+				p_color = new double[3];
+				p = Assistant.getRelevantPoint(i, j, p0, cam,imageWidth,imageHeight);
+				if(i==0&&j==0||i==0&&j==imageWidth-1||i==imageHeight-1&&j==0||i==imageHeight-1&&j==imageWidth-1) {
+					System.out.println("i="+i+", j="+j);
+					System.out.println("p="+p);
+				}
+				for (int numSample = 0; numSample < super_sam_sqr; numSample++) {
+					
+					/* find the additions per area index */
+					addition_height = (numSample % superSampleLevel + random.nextDouble()) * sam_height_partition;
+					addition_width = (numSample / superSampleLevel + random.nextDouble()) * sam_width_partition;
 
+					/* redirect the ray */
+					ray = new Vector(p.x, p.y, p.z);
+					ray.add(cam.x_Axis.mult(addition_width));
+					ray.add(cam.fixedUpVector.mult(addition_height));
+					ray.normalise();
+
+					double[] sample_color = rayHitColor(p, ray, 0);
+
+					p_color[0] += sample_color[0];
+					p_color[1] += sample_color[1];
+					p_color[2] += sample_color[2];
+					
+				}
+				//System.out.println(Arrays.toString(p_color));
+				rgbData[(i * this.imageWidth + j) * 3] = (byte) Math.round(255 * p_color[0] / super_sam_sqr);
+				rgbData[(i * this.imageWidth + j) * 3 + 1] = (byte) Math.round(255 * p_color[1] / super_sam_sqr);
+				rgbData[(i * this.imageWidth + j) * 3 + 2] = (byte) Math.round(255 * p_color[2] / super_sam_sqr);
+
+			}
+		}
 		long endTime = System.currentTimeMillis();
 		Long renderTime = endTime - startTime;
 
-		// The time is measured for your own conveniece, rendering speed will not affect
-		// your score
-		// unless it is exceptionally slow (more than a couple of minutes)
 		System.out.println("Finished rendering scene in " + renderTime.toString() + " milliseconds.");
 
 		// This is already implemented, and should work without adding any code.
@@ -173,8 +296,84 @@ public class RayTracer {
 
 	}
 
-	//////////////////////// FUNCTIONS TO SAVE IMAGES IN PNG FORMAT
-	//////////////////////// //////////////////////////////////////////
+	private double[] rayHitColor(Point p, Vector ray, int recursionNum) {
+		if (recursionNum == maxRecursionNum)
+			return new double[] { 0, 0, 0 };
+
+		Surfaces intersectionShape = Assistant.findIntersection(p, ray, surfaces_list);
+		if (intersectionShape == null)
+			return background_RGB;
+
+		double t = intersectionShape.getIntersection(p, ray);
+		Point intersectionPoint = Point.findPoint(p, ray, t);
+		Color pixel=new Color(new double[] {0,0,0});
+
+		/*
+		 * 
+		 * do the transparancy and the reflection !!!!!!!!!!!
+		 */
+
+		for (Light lgt : lgt_list) {
+			Color p_color = getColor(intersectionPoint, ray, intersectionShape, lgt);
+			pixel.R+=p_color.R;
+			pixel.G+=p_color.G;
+			pixel.B+=p_color.B;
+		}
+		pixel.R=Math.min(pixel.R,1);
+		pixel.B=Math.min(pixel.B,1);
+		pixel.G=Math.min(pixel.G,1);
+		
+		return new double[]{pixel.R,pixel.G,pixel.B};
+	}
+
+	private Color getColor(Point intersectionPoint, Vector ray, Surfaces intersectionShape, Light lgt) {
+		
+		
+		Material mat = mat_list.get(intersectionShape.material_index);
+		Color diffuseColor = mat.diffuseColor;
+		Color specularColor = mat.specularColor;
+		/*
+		 * the light direction vector was flipped here
+		 * */
+		
+		Vector lightDirection = new Vector(lgt.position,intersectionPoint);
+		lightDirection.normalise();
+		if (intersectionShape.getType() == Surfaces.type.sphere)
+			((Sphere) intersectionShape).setNormalPoint(intersectionPoint);
+		
+		Vector normal = intersectionShape.getNormal();
+		
+		if(Vector.dotProduct(ray, normal)>0) 
+			normal.mult(-1);
+		
+		double alpha = (Vector.dotProduct(lightDirection, normal));
+		// System.out.println("alpha="+alpha);
+		if (alpha <= 0) 
+			return new Color(new double[] {0,0,0});
+		
+		diffuseColor.mult(alpha);
+		
+		if (specularColor.R != 0 || specularColor.G != 0 || specularColor.B != 0) {
+
+			Vector reflect = new Vector(normal.x,normal.y,normal.z);
+			reflect.mult(2 * Vector.dotProduct(lightDirection, normal));
+			reflect.add(lightDirection.mult(-1));
+			alpha = Vector.dotProduct(ray, reflect);
+			if (alpha < 0) {
+				alpha = Math.pow(alpha, mat.PhongSpecularityCoefficient);
+				specularColor.mult(alpha);
+				diffuseColor.R=diffuseColor.R+lgt.specularIntensity*specularColor.R;
+				diffuseColor.B=diffuseColor.B+lgt.specularIntensity*specularColor.B;
+				diffuseColor.G=diffuseColor.G+lgt.specularIntensity*specularColor.G;
+			}
+		}
+		diffuseColor.R=Math.min(diffuseColor.R,1);
+		diffuseColor.B=Math.min(diffuseColor.B,1);
+		diffuseColor.G=Math.min(diffuseColor.G,1);
+		diffuseColor.mult(lgt.color);
+
+		return diffuseColor;
+	}
 
 	/*
 	 * Saves RGB data as an image in png format to the specified location.
@@ -190,10 +389,13 @@ public class RayTracer {
 		}
 
 	}
+	//////////////////////// FUNCTIONS TO SAVE IMAGES IN PNG FORMAT
+	//////////////////////// //////////////////////////////////////////
+
 
 	/*
-	 * Producing a BufferedImage that can be saved as png from a byte array of RGB
-	 * values.
+	 * Producing a BufferedImage that can be saved as png from a byte array of
+	 * RGB values.
 	 */
 	public static BufferedImage bytes2RGB(int width, byte[] buffer) {
 		int height = buffer.length / width / 3;
