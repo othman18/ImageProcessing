@@ -23,3 +23,6 @@
  
  *i added an assistant class .
  *i updated the return type of get intersection in Surfaces abstract class to t(was the intersection point)
+ 
+ 21/5:
+ change every double to float

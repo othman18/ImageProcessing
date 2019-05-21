@@ -25,6 +25,7 @@ public class Assistant {
 		Point p = new Point(p0.x, p0.y, p0.z);
 		p.addByVector(cam.fixedUpVector, i);
 		p.addByVector(cam.x_Axis, j);
+		System.out.println("p0="+p);
 		return p;
 	}
 

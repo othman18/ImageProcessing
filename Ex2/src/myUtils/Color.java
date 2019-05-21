@@ -20,4 +20,9 @@ public class Color {
 		G*=c.G;
 		B*=c.B;
 	}
+
+	public String toString() {
+		return "C(" + R + ", " + G + ", " + B + ")";
+	}
+
 }

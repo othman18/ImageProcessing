@@ -79,7 +79,7 @@ public class RayTracer {
 		BufferedReader r = new BufferedReader(fr);
 		String line = null;
 		int lineNum = 0;
-		System.out.println("Started parsing scene file " + sceneFileName);
+		// System.out.println("Started parsing scene file " + sceneFileName);
 
 		// init the lists
 		mat_list = new ArrayList<>();
@@ -104,6 +104,7 @@ public class RayTracer {
 					// Add code here to parse camera parameters
 					if (params.length != 11) {
 						System.out.println("cam input file error");
+						r.close();
 						return;
 					}
 					Point position = new Point(Double.parseDouble(params[0]), Double.parseDouble(params[1]),
@@ -121,6 +122,7 @@ public class RayTracer {
 					// Add code here to parse general settings parameters
 					if (params.length != 6) {
 						System.out.println("general settings input file error");
+						r.close();
 						return;
 					}
 					background_RGB[0] = Double.parseDouble(params[0]);
@@ -136,6 +138,7 @@ public class RayTracer {
 					// Add code here to parse material parameters
 					if (params.length != 11) {
 						System.out.println("material input file error");
+						r.close();
 						return;
 					}
 					double[] diffuse_color = { Double.parseDouble(params[0]), Double.parseDouble(params[1]),
@@ -153,6 +156,7 @@ public class RayTracer {
 				} else if (code.equals("sph")) {
 					if (params.length != 5) {
 						System.out.println("sphere input file error");
+						r.close();
 						return;
 					}
 					// Add code here to parse sphere parameters
@@ -167,6 +171,7 @@ public class RayTracer {
 					// Add code here to parse plane parameters
 					if (params.length != 5) {
 						System.out.println("plane input file error");
+						r.close();
 						return;
 					}
 					double a, b, c, offset;
@@ -183,6 +188,7 @@ public class RayTracer {
 					// Add code here to parse light parameters
 					if (params.length != 10) {
 						System.out.println("triangle input file error");
+						r.close();
 						return;
 					}
 					Point p1 = new Point(Double.parseDouble(params[0]), Double.parseDouble(params[1]),
@@ -200,6 +206,7 @@ public class RayTracer {
 					// Add code here to parse light parameters
 					if (params.length != 9) {
 						System.out.println("light input file error");
+						r.close();
 						return;
 					}
 					double spec_intensity, shadow_indensity, light_rad;
@@ -218,7 +225,7 @@ public class RayTracer {
 				}
 			}
 		}
-
+		r.close();
 		// It is recommended that you check here that the scene is valid,
 		// for example camera settings and all necessary materials were defined.
 
@@ -236,8 +243,9 @@ public class RayTracer {
 		byte[] rgbData = new byte[this.imageWidth * this.imageHeight * 3];
 
 		/** camera */
-		double distance = cam.getDistance(), sam_partition = (1 / ((double) superSampleLevel)), addition_height,
-				addition_width;
+		double distance = cam.getDistance(), sam_width_partition = (cam.screenWidth / ((double) (superSampleLevel*imageWidth)));
+		double addition_width,sam_height_partition = (cam.screenHeight / ((double) (superSampleLevel*imageHeight)));
+		double addition_height;
 		Point p, p0 = cam.findStartPoint(distance, imageWidth, imageHeight);
 		double[] p_color;
 		int super_sam_sqr = superSampleLevel * superSampleLevel;
@@ -246,11 +254,15 @@ public class RayTracer {
 			for (int j = 0; j < imageWidth; j++) {
 				p_color = new double[3];
 				p = Assistant.getRelevantPoint(i, j, p0, cam);
+				if(i==0&&j==0||i==0&&j==imageWidth-1||i==imageHeight-1&&j==0||i==imageHeight-1&&j==imageWidth-1) {
+					System.out.println("i="+i+", j="+j);
+					System.out.println("p="+p);
+				}
 				for (int numSample = 0; numSample < super_sam_sqr; numSample++) {
-
+					
 					/* find the additions per area index */
-					addition_height = (numSample % superSampleLevel + random.nextDouble()) * sam_partition;
-					addition_width = (numSample / superSampleLevel + random.nextDouble()) * sam_partition;
+					addition_height = (numSample % superSampleLevel + random.nextDouble()) * sam_height_partition;
+					addition_width = (numSample / superSampleLevel + random.nextDouble()) * sam_width_partition;
 
 					/* redirect the ray */
 					ray = new Vector(p.x, p.y, p.z);
@@ -263,8 +275,9 @@ public class RayTracer {
 					p_color[0] += sample_color[0];
 					p_color[1] += sample_color[1];
 					p_color[2] += sample_color[2];
-
+					
 				}
+				//System.out.println(Arrays.toString(p_color));
 				rgbData[(i * this.imageWidth + j) * 3] = (byte) Math.round(255 * p_color[0] / super_sam_sqr);
 				rgbData[(i * this.imageWidth + j) * 3 + 1] = (byte) Math.round(255 * p_color[1] / super_sam_sqr);
 				rgbData[(i * this.imageWidth + j) * 3 + 2] = (byte) Math.round(255 * p_color[2] / super_sam_sqr);
@@ -314,21 +327,27 @@ public class RayTracer {
 	}
 
 	private Color getColor(Point intersectionPoint, Vector ray, Surfaces intersectionShape, Light lgt) {
-
+		
+		
 		Material mat = mat_list.get(intersectionShape.material_index);
 		Color diffuseColor = mat.diffuseColor;
 		Color specularColor = mat.specularColor;
-		Vector lightDirection = new Vector(intersectionPoint, lgt.position);
+		/*
+		 * the light direction vector was flipped here
+		 * */
+		
+		Vector lightDirection = new Vector(lgt.position,intersectionPoint);
 		lightDirection.normalise();
 		if (intersectionShape.getType() == Surfaces.type.sphere)
 			((Sphere) intersectionShape).setNormalPoint(intersectionPoint);
 		
 		Vector normal = intersectionShape.getNormal();
 		
-		if(Vector.dotProduct(ray, normal)>0)
+		if(Vector.dotProduct(ray, normal)>0) 
 			normal.mult(-1);
 		
 		double alpha = (Vector.dotProduct(lightDirection, normal));
+		// System.out.println("alpha="+alpha);
 		if (alpha <= 0) 
 			return new Color(new double[] {0,0,0});
 		

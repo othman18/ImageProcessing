@@ -6,7 +6,7 @@ public class Camera {
 
 	Point position, lookAtPoint;
 	Vector upVector;
-	double screenDistance, screenWidth;
+	public double screenDistance, screenWidth,screenHeight;
 	// RGB
 	// Number of shadow rays
 	// Maximum recursion level
@@ -27,17 +27,16 @@ public class Camera {
 	 * cameraDirection represents the z-axis fixedUpVector represents the y-axis
 	 */
 	private void translateAxises() {
-		// TODO Auto-generated method stub
 		cameraDirection = new Vector(position, lookAtPoint);
 		cameraDirection.normalise();
 		x_Axis = Vector.crossProduct(cameraDirection, upVector);
 		fixedUpVector = Vector.crossProduct(x_Axis, cameraDirection);
-
 	}
 
 	public Point findStartPoint(double distance, int width, int height) {
-		Point p0 = Point.findPoint(position, cameraDirection, distance);
-		p0 = new Point(p0.x - width / 2, p0.y - height / 2, p0.z);
+		screenHeight = (height/width)*this.screenWidth;
+		Point p0 = Point.findPoint(position, cameraDirection, screenDistance);
+		p0 = new Point(p0.x - screenWidth / 2, p0.y - screenHeight / 2, p0.z);
 		return p0;
 	}
 
