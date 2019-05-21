@@ -2,11 +2,22 @@ package myUtils;
 
 public class Color {
 
-	int R, G, B;
+	public double R, G, B;
 
 	public Color(double[] RGB) {
-		R = (int) RGB[0] * 255;
-		G = (int) RGB[1] * 255;
-		B = (int) RGB[2] * 255;
+		R =  RGB[0];
+		G =  RGB[1];
+		B = RGB[2];
+	}
+	public void mult(double c){
+		R=R*c;
+		G=G*c;
+		B=B*c;
+		
+	}
+	public void mult(Color c){
+		R*=c.R;
+		G*=c.G;
+		B*=c.B;
 	}
 }

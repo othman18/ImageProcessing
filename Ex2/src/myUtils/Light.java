@@ -2,8 +2,8 @@ package myUtils;
 
 public class Light {
 	public Point position;
-	Color color;
-	double specularIntensity, shadowIntensity, lightRadius;
+	public Color color;
+	public double specularIntensity, shadowIntensity, lightRadius;
 
 	public Light(Point pos, double[] col, double spec_intensity, double shadow_indensity, double light_rad) {
 		this.position = pos;

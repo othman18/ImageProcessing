@@ -294,6 +294,7 @@ public class RayTracer {
 
 		double t = intersectionShape.getIntersection(p, ray);
 		Point intersectionPoint = Point.findPoint(p, ray, t);
+		Color pixel=new Color(new double[] {0,0,0});
 
 		/*
 		 * 
@@ -302,12 +303,16 @@ public class RayTracer {
 
 		for (Light lgt : lgt_list) {
 			Color p_color = getColor(intersectionPoint, ray, intersectionShape, lgt);
+			pixel.R+=p_color.R;
+			pixel.G+=p_color.G;
+			pixel.B+=p_color.B;
 		}
-		return null;
+		pixel.R=Math.min(pixel.R,1);
+		pixel.B=Math.min(pixel.B,1);
+		pixel.G=Math.min(pixel.G,1);
+		
+		return new double[]{pixel.R,pixel.G,pixel.B};
 	}
-
-	//////////////////////// FUNCTIONS TO SAVE IMAGES IN PNG FORMAT
-	//////////////////////// //////////////////////////////////////////
 
 	private Color getColor(Point intersectionPoint, Vector ray, Surfaces intersectionShape, Light lgt) {
 
@@ -320,29 +325,35 @@ public class RayTracer {
 			((Sphere) intersectionShape).setNormalPoint(intersectionPoint);
 		
 		Vector normal = intersectionShape.getNormal();
-		/*if (Vector.scalarMul(visionDir, normal) > 0)
-			normal.scale(-1);
-		double alpha = (Vector.scalarMul(lightDir, normal));
-		if (alpha <= 0) {
-			diffuseColor.scale(0);
-			return diffuseColor;
-		}
-		diffuseColor.scale(alpha);
-		if (specularColor.get(0) != 0 || specularColor.get(1) != 0 || specularColor.get(2) != 0) {
+		
+		if(Vector.dotProduct(ray, normal)>0)
+			normal.mult(-1);
+		
+		double alpha = (Vector.dotProduct(lightDirection, normal));
+		if (alpha <= 0) 
+			return new Color(new double[] {0,0,0});
+		
+		diffuseColor.mult(alpha);
+		
+		if (specularColor.R != 0 || specularColor.G != 0 || specularColor.B != 0) {
 
-			Vector reflect = new Vector(normal);
-			reflect.scale(2 * Vector.scalarMul(lightDir, normal));
-			reflect.add(lightDir, -1);
-			alpha = Vector.scalarMul(visionDir, reflect);
+			Vector reflect = new Vector(normal.x,normal.y,normal.z);
+			reflect.mult(2 * Vector.dotProduct(lightDirection, normal));
+			reflect.add(lightDirection.mult(-1));
+			alpha = Vector.dotProduct(ray, reflect);
 			if (alpha < 0) {
-				alpha = Math.pow(alpha, mat.getPhong());
-				specularColor.scale(alpha);
-				diffuseColor.add(specularColor, light.getSpecular());
+				alpha = Math.pow(alpha, mat.PhongSpecularityCoefficient);
+				specularColor.mult(alpha);
+				diffuseColor.R=diffuseColor.R+lgt.specularIntensity*specularColor.R;
+				diffuseColor.B=diffuseColor.B+lgt.specularIntensity*specularColor.B;
+				diffuseColor.G=diffuseColor.G+lgt.specularIntensity*specularColor.G;
 			}
 		}
-		diffuseColor.normalise();
-		diffuseColor.mul(light.getIntensity());
-*/
+		diffuseColor.R=Math.min(diffuseColor.R,1);
+		diffuseColor.B=Math.min(diffuseColor.B,1);
+		diffuseColor.G=Math.min(diffuseColor.G,1);
+		diffuseColor.mult(lgt.color);
+
 		return diffuseColor;
 	}
 
@@ -360,6 +371,9 @@ public class RayTracer {
 		}
 
 	}
+	//////////////////////// FUNCTIONS TO SAVE IMAGES IN PNG FORMAT
+	//////////////////////// //////////////////////////////////////////
+
 
 	/*
 	 * Producing a BufferedImage that can be saved as png from a byte array of
