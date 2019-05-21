@@ -20,11 +20,13 @@ public class Assistant {
 		return min_primitive;
 	}
 	
-	/** using the i and j index, change the position of the point according the cam's axis*/
-	public static Point getRelevantPoint(int i, int j, Point p0, Camera cam) {
+	/** using the i and j index, change the position of the point according the cam's axis
+	 * @param imageHeight 
+	 * @param imageWidth */
+	public static Point getRelevantPoint(int i, int j, Point p0, Camera cam, int imageWidth, int imageHeight) {
 		Point p = new Point(p0.x, p0.y, p0.z);
-		p.addByVector(cam.fixedUpVector, i);
-		p.addByVector(cam.x_Axis, j);
+		p.addByVector(cam.fixedUpVector, (((double)i)/imageHeight) * cam.screenHeight);
+		p.addByVector(cam.x_Axis, (((double)j)/imageWidth) * cam.screenWidth);
 		System.out.println("p0="+p);
 		return p;
 	}

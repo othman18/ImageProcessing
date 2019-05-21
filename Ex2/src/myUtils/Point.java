@@ -22,7 +22,7 @@ public class Point {
 		return p;
 	}
 
-	public void addByVector(Vector v, int num) {
+	public void addByVector(Vector v, double num) {
 		this.x += v.x * num;
 		this.y += v.y * num;
 		this.z += v.z * num;

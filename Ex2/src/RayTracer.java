@@ -253,7 +253,7 @@ public class RayTracer {
 		for (int i = 0; i < imageHeight; i++) {
 			for (int j = 0; j < imageWidth; j++) {
 				p_color = new double[3];
-				p = Assistant.getRelevantPoint(i, j, p0, cam);
+				p = Assistant.getRelevantPoint(i, j, p0, cam,imageWidth,imageHeight);
 				if(i==0&&j==0||i==0&&j==imageWidth-1||i==imageHeight-1&&j==0||i==imageHeight-1&&j==imageWidth-1) {
 					System.out.println("i="+i+", j="+j);
 					System.out.println("p="+p);
