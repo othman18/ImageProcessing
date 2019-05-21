@@ -78,6 +78,7 @@ public class Vector {
 		this.x = this.x * d;
 		this.y = this.y * d;
 		this.z = this.z * d;
+		this.length = 1;
 	}
 
 	@Override

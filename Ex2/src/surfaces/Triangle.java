@@ -13,6 +13,7 @@ public class Triangle extends Surfaces {
 		this.p2 = p2;
 		this.p3 = p3;
 		this.material_index = index;
+		myType = type.triangle;
 	}
 
 	public type getType() {

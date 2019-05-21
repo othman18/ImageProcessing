@@ -2,6 +2,7 @@ package surfaces;
 
 import myUtils.Point;
 import myUtils.Vector;
+import surfaces.Surfaces.type;
 
 public class InfinitePlane extends Surfaces {
 
@@ -14,6 +15,8 @@ public class InfinitePlane extends Surfaces {
 		this.c = c;
 		this.d = d;
 		this.material_index = index;
+		myType = type.infinitePlane;
+
 	}
 
 	/** make a plane from two vectors */

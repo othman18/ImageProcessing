@@ -14,6 +14,7 @@ public class Sphere extends Surfaces {
 		this.center = center;
 		this.radius = radius;
 		this.material_index = index;
+		myType = type.sphere;
 	}
 
 	public type getType() {
