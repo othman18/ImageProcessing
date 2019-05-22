@@ -23,7 +23,7 @@ public class RayTracer {
 	List<Material> mat_list;
 	List<Surfaces> surfaces_list;
 	List<Light> lgt_list;
-	double epsilon = 0.001;
+	double epsilon = 0.000001;
 	/**
 	 * Runs the ray tracer. Takes scene file, output image file and image size as
 	 * input.

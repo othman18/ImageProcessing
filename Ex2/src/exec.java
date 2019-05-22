@@ -7,9 +7,6 @@ public class exec {
 
 	public static void main(String[] args) {
 
-		Point camP = new Point(0.1,0,0);
-		InfinitePlane ip = new InfinitePlane(0,1,0,-2,5);
-		
 		
 	}
 }
