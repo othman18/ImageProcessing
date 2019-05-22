@@ -10,15 +10,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import myUtils.*;
-
 import javax.imageio.ImageIO;
 
-import surfaces.*;
 
-/**
- * Main class for ray tracing exercise.
- */
 public class RayTracer {
 
 	public int imageWidth, imageHeight;
@@ -29,15 +23,14 @@ public class RayTracer {
 	List<Material> mat_list;
 	List<Surfaces> surfaces_list;
 	List<Light> lgt_list;
-
+	double epsilon = 0.001;
 	/**
-	 * Runs the ray tracer. Takes scene file, output image file and image size
-	 * as input.
+	 * Runs the ray tracer. Takes scene file, output image file and image size as
+	 * input.
 	 */
 	public static void main(String[] args) {
 
 		try {
-
 			RayTracer tracer = new RayTracer();
 			// Default values:
 			tracer.imageWidth = 500;
@@ -62,8 +55,10 @@ public class RayTracer {
 			tracer.renderScene(outputFileName);
 
 		} catch (RayTracerException e) {
+			System.out.println("exception 1");
 			System.out.println(e.getMessage());
 		} catch (Exception e) {
+			System.out.println("exception 2");
 			System.out.println(e.getMessage());
 		}
 
@@ -115,7 +110,8 @@ public class RayTracer {
 							Double.parseDouble(params[8]));
 					double screenDistance = Double.parseDouble(params[9]);
 					double screenWidth = Double.parseDouble(params[10]);
-					cam = new Camera(position, lookAtPoint, upVector, screenDistance, screenWidth);
+					cam = new Camera(position, lookAtPoint, upVector, screenDistance, screenWidth, imageWidth,
+							imageHeight);
 					System.out.println(String.format("Parsed camera parameters (line %d)", lineNum));
 
 				} else if (code.equals("set")) {
@@ -127,11 +123,10 @@ public class RayTracer {
 					}
 					background_RGB[0] = Double.parseDouble(params[0]);
 					background_RGB[1] = Double.parseDouble(params[1]);
-					background_RGB[2] = Double.parseDouble(params[2]);
+					background_RGB[2] = Double.parseDouble(params[	2]);
 					root_shadow_rays = Integer.parseInt(params[3]);
 					maxRecursionNum = Integer.parseInt(params[4]);
 					superSampleLevel = Integer.parseInt(params[5]);
-
 					System.out.println(String.format("Parsed general settings (line %d)", lineNum));
 
 				} else if (code.equals("mtl")) {
@@ -160,6 +155,7 @@ public class RayTracer {
 						return;
 					}
 					// Add code here to parse sphere parameters
+
 					Point center = new Point(Double.parseDouble(params[0]), Double.parseDouble(params[1]),
 							Double.parseDouble(params[2]));
 					double rad = Double.parseDouble(params[3]);
@@ -191,6 +187,7 @@ public class RayTracer {
 						r.close();
 						return;
 					}
+
 					Point p1 = new Point(Double.parseDouble(params[0]), Double.parseDouble(params[1]),
 							Double.parseDouble(params[2]));
 					Point p2 = new Point(Double.parseDouble(params[3]), Double.parseDouble(params[4]),
@@ -226,9 +223,6 @@ public class RayTracer {
 			}
 		}
 		r.close();
-		// It is recommended that you check here that the scene is valid,
-		// for example camera settings and all necessary materials were defined.
-
 		System.out.println("Finished parsing scene file " + sceneFileName);
 
 	}
@@ -238,140 +232,188 @@ public class RayTracer {
 	 */
 	public void renderScene(String outputFileName) {
 		long startTime = System.currentTimeMillis();
-
+	
 		// Create a byte array to hold the pixel data:
 		byte[] rgbData = new byte[this.imageWidth * this.imageHeight * 3];
-
-		/** camera */
-		double distance = cam.getDistance(), sam_width_partition = (cam.screenWidth / ((double) (superSampleLevel*imageWidth)));
-		double addition_width,sam_height_partition = (cam.screenHeight / ((double) (superSampleLevel*imageHeight)));
-		double addition_height;
-		Point p, p0 = cam.findStartPoint(distance, imageWidth, imageHeight);
-		double[] p_color;
-		int super_sam_sqr = superSampleLevel * superSampleLevel;
+		
+		Point p0 = cam.findLeftLowerPoint();
 		Vector ray;
+		Point p, samplePoint;
+		
+		int cnt=1;
+		//System.out.println(p0);
 		for (int i = 0; i < imageHeight; i++) {
 			for (int j = 0; j < imageWidth; j++) {
-				p_color = new double[3];
-				p = Assistant.getRelevantPoint(i, j, p0, cam,imageWidth,imageHeight);
-				if(i==0&&j==0||i==0&&j==imageWidth-1||i==imageHeight-1&&j==0||i==imageHeight-1&&j==imageWidth-1) {
-					System.out.println("i="+i+", j="+j);
-					System.out.println("p="+p);
+				p = Point.findPoint(p0, cam.x_Axis, j * cam.screenWidth / imageWidth);
+				p = Point.findPoint(p, cam.y_Axis, i * cam.screenHeight / imageHeight);
+				
+				if((i==0 && j==0) || (i==0 && j==499) ||(i==499 && j==0) ||(i==499 && j==499)) {
+					System.out.println("p"+cnt+")" +p);
+					cnt+=1;
 				}
-				for (int numSample = 0; numSample < super_sam_sqr; numSample++) {
-					
-					/* find the additions per area index */
-					addition_height = (numSample % superSampleLevel + random.nextDouble()) * sam_height_partition;
-					addition_width = (numSample / superSampleLevel + random.nextDouble()) * sam_width_partition;
+				double[] pColor = { 0, 0, 0 };
+			
+				for (int sample_x = 0; sample_x < superSampleLevel; sample_x++) {
+					for (int sample_y = 0; sample_y < superSampleLevel; sample_y++) {
 
-					/* redirect the ray */
-					ray = new Vector(p.x, p.y, p.z);
-					ray.add(cam.x_Axis.mult(addition_width));
-					ray.add(cam.fixedUpVector.mult(addition_height));
-					ray.normalise();
+						samplePoint = Point.findPoint(p, cam.x_Axis,
+								(sample_x +random.nextDouble()) * cam.screenWidth / (superSampleLevel*imageWidth));
+						samplePoint = Point.findPoint(samplePoint, cam.y_Axis,
+								(sample_y + random.nextDouble()) * cam.screenHeight /(superSampleLevel* imageHeight));
+						//System.out.println("x="+(sample_x +random) * cam.screenWidth / (superSampleLevel*imageWidth));
+						//System.out.println("y="+(sample_y + random) * cam.screenHeight / (superSampleLevel*imageHeight));
+						ray = new Vector(cam.position, samplePoint);
+						ray.normalise();
 
-					double[] sample_color = rayHitColor(p, ray, 0);
-
-					p_color[0] += sample_color[0];
-					p_color[1] += sample_color[1];
-					p_color[2] += sample_color[2];
-					
+						double[] sampleColor = intersectionColor(cam.position, ray, 0);
+			/*			if(sampleColor[0] !=1 && sampleColor[1] !=1 && sampleColor[2] !=1) {
+							System.out.println(Arrays.toString(sampleColor));							
+						}*/
+						for (int k = 0; k < 3; k++)
+							pColor[k] += sampleColor[k];
+					}
 				}
-				//System.out.println(Arrays.toString(p_color));
-				rgbData[(i * this.imageWidth + j) * 3] = (byte) Math.round(255 * p_color[0] / super_sam_sqr);
-				rgbData[(i * this.imageWidth + j) * 3 + 1] = (byte) Math.round(255 * p_color[1] / super_sam_sqr);
-				rgbData[(i * this.imageWidth + j) * 3 + 2] = (byte) Math.round(255 * p_color[2] / super_sam_sqr);
-
+				/*
+				 * according to the way we iterate over the indexes, we matched them in the
+				 * saved array (RGBData)
+				 */
+				for (int k = 0; k < 3; k++)
+					rgbData[((imageHeight - i - 1) * this.imageWidth + (j)) * 3 + k] = (byte) Math
+							.round(255 * pColor[k] / (superSampleLevel * superSampleLevel));
 			}
 		}
 		long endTime = System.currentTimeMillis();
 		Long renderTime = endTime - startTime;
+		System.out.println("Finished Rendering scrnr in " + renderTime.toString() + " milliseconds.");
 
-		System.out.println("Finished rendering scene in " + renderTime.toString() + " milliseconds.");
-
-		// This is already implemented, and should work without adding any code.
-		saveImage(this.imageWidth, rgbData, outputFileName);
-
-		System.out.println("Saved file " + outputFileName);
-
+		saveImage(imageWidth, rgbData, outputFileName);
+		System.out.println("Saved in " + outputFileName);
 	}
 
-	private double[] rayHitColor(Point p, Vector ray, int recursionNum) {
-		if (recursionNum == maxRecursionNum)
-			return new double[] { 0, 0, 0 };
-
-		Surfaces intersectionShape = Assistant.findIntersection(p, ray, surfaces_list);
-		if (intersectionShape == null)
-			return background_RGB;
-
-		double t = intersectionShape.getIntersection(p, ray);
-		Point intersectionPoint = Point.findPoint(p, ray, t);
-		Color pixel=new Color(new double[] {0,0,0});
-
-		/*
-		 * 
-		 * do the transparancy and the reflection !!!!!!!!!!!
-		 */
-
-		for (Light lgt : lgt_list) {
-			Color p_color = getColor(intersectionPoint, ray, intersectionShape, lgt);
-			pixel.R+=p_color.R;
-			pixel.G+=p_color.G;
-			pixel.B+=p_color.B;
-		}
-		pixel.R=Math.min(pixel.R,1);
-		pixel.B=Math.min(pixel.B,1);
-		pixel.G=Math.min(pixel.G,1);
+	public Surfaces findIntersection(Point p0, Vector direction) {
+		double min_t = Double.POSITIVE_INFINITY;
+		Surfaces min_primitive = null;
 		
-		return new double[]{pixel.R,pixel.G,pixel.B};
-	}
-
-	private Color getColor(Point intersectionPoint, Vector ray, Surfaces intersectionShape, Light lgt) {
-		
-		
-		Material mat = mat_list.get(intersectionShape.material_index);
-		Color diffuseColor = mat.diffuseColor;
-		Color specularColor = mat.specularColor;
-		/*
-		 * the light direction vector was flipped here
-		 * */
-		
-		Vector lightDirection = new Vector(lgt.position,intersectionPoint);
-		lightDirection.normalise();
-		if (intersectionShape.getType() == Surfaces.type.sphere)
-			((Sphere) intersectionShape).setNormalPoint(intersectionPoint);
-		
-		Vector normal = intersectionShape.getNormal();
-		
-		if(Vector.dotProduct(ray, normal)>0) 
-			normal.mult(-1);
-		
-		double alpha = (Vector.dotProduct(lightDirection, normal));
-		// System.out.println("alpha="+alpha);
-		if (alpha <= 0) 
-			return new Color(new double[] {0,0,0});
-		
-		diffuseColor.mult(alpha);
-		
-		if (specularColor.R != 0 || specularColor.G != 0 || specularColor.B != 0) {
-
-			Vector reflect = new Vector(normal.x,normal.y,normal.z);
-			reflect.mult(2 * Vector.dotProduct(lightDirection, normal));
-			reflect.add(lightDirection.mult(-1));
-			alpha = Vector.dotProduct(ray, reflect);
-			if (alpha < 0) {
-				alpha = Math.pow(alpha, mat.PhongSpecularityCoefficient);
-				specularColor.mult(alpha);
-				diffuseColor.R=diffuseColor.R+lgt.specularIntensity*specularColor.R;
-				diffuseColor.B=diffuseColor.B+lgt.specularIntensity*specularColor.B;
-				diffuseColor.G=diffuseColor.G+lgt.specularIntensity*specularColor.G;
+		for (Surfaces shape : surfaces_list) {
+			double t = shape.getIntersection(p0, direction);
+			
+//			System.out.println("intersection="+t);
+			if (t == -1)
+				continue;
+			if (t < min_t && t>0) {
+				min_t = t;
+				min_primitive = shape;
 			}
 		}
-		diffuseColor.R=Math.min(diffuseColor.R,1);
-		diffuseColor.B=Math.min(diffuseColor.B,1);
-		diffuseColor.G=Math.min(diffuseColor.G,1);
-		diffuseColor.mult(lgt.color);
+		
+		//if(min_primitive!= null && min_primitive.myType!=Surfaces.type.infinitePlane)
+		//	System.out.println("lopsadasdfasd");
+		return min_primitive;
+	}
 
+	private double[] intersectionColor(Point position, Vector ray, int recLvl) {
+	//	System.out.println(recLvl);
+		if(recLvl == maxRecursionNum) {
+			return new double[] { 0, 0, 0 };
+		}
+		Point closestPoint = new Point(position.x, position.y,position.z);
+		Surfaces closesSurface = findIntersection(position, ray);
+		
+		Color pixelColor = new Color(new double[] {0,0,0});
+		if(closesSurface == null)
+			return background_RGB;
+		
+		
+		double t=closesSurface.getIntersection(position, ray);
+		closestPoint=Point.findPoint(position, ray, t);
+		
+		
+		Material surfaceMaterial = new Material(mat_list.get(closesSurface.material_index));
+		double transparancy = surfaceMaterial.transparency;
+		Color transparancyColor = new Color(new double[] {0,0,0}), reflectionColor = new Color(new double[] {0,0,0}) ;
+		Point proxyPoint;
+		
+		if(transparancy != 0) {
+			proxyPoint = Point.findPoint(closestPoint, ray, epsilon);
+			transparancyColor = new Color(intersectionColor(proxyPoint,ray, recLvl+1));
+		}
+		
+		double[] reflectionMat = surfaceMaterial.reflectionColor.getValues();
+		if(reflectionMat[0] != 0 ||reflectionMat[1] != 0 ||reflectionMat[2] != 0 ) {
+			Vector normal;
+			if(closesSurface.getType()==Surfaces.type.sphere){
+				normal = ((Sphere) closesSurface).getNormal(closestPoint);
+			}else if(closesSurface.getType()==Surfaces.type.triangle) {
+				normal = ((Triangle) closesSurface).getNormal();
+			}else{
+				normal = ((InfinitePlane) closesSurface).getNormal();
+			}
+			
+			Vector reflectionRay = Vector.scaleMult(normal, -2*Vector.dotProduct(normal, ray));
+			reflectionRay = Vector.add(ray, reflectionRay);
+			proxyPoint = Point.findPoint(closestPoint, reflectionRay, epsilon);
+			reflectionColor = new Color(intersectionColor(proxyPoint, reflectionRay, recLvl+1));
+			reflectionColor.mult(surfaceMaterial.reflectionColor);
+		}
+		
+		for(Light l :lgt_list) {
+			Color curColor = getColor(closestPoint, closesSurface, ray, l);
+			/***
+			 * 
+			 * SHADOW HERE !!!!!!!
+			 * ***/
+			pixelColor.updateColor(curColor, 1);
+		}
+
+		pixelColor.normalise();
+		pixelColor.scale(1-transparancy);
+		pixelColor.updateColor(transparancyColor, transparancy);
+		pixelColor.updateColor(reflectionColor, 1);
+		pixelColor.normalise();
+		return pixelColor.getValues();
+	}
+
+	private Color getColor(Point pt, Surfaces sur, Vector visionDir, Light light) {
+		
+		Material mat = new Material(mat_list.get(sur.material_index));
+		Color diffuseColor = new Color(new double[] {mat.diffuseColor.R,mat.diffuseColor.G,mat.diffuseColor.B});
+		
+		Color specularColor = new Color(new double[] {mat.specularColor.R,mat.specularColor.G,mat.specularColor.B});
+		//update the points and the who lets the dogs out woh WOooh
+		Vector lightDir = new Vector(pt,new Point(light.position.x,light.position.y,light.position.z));
+		lightDir.normalise();
+		Vector normal;
+		if(sur.getType()==Surfaces.type.sphere){
+			normal = ((Sphere) sur).getNormal(pt);
+		}else if(sur.getType()==Surfaces.type.triangle) {
+			normal = ((Triangle) sur).getNormal();
+		}else{
+			normal = ((InfinitePlane) sur).getNormal();
+		}
+		if(Vector.dotProduct(visionDir, normal) > 0 )
+			normal = Vector.scaleMult(normal, -1);
+		double alpha = Vector.dotProduct(lightDir, normal);
+//		System.out.println(alpha);
+		if(alpha <= 0) {
+			diffuseColor.scale(0);
+			return new Color(new double[] {0,0,0});
+		}
+		diffuseColor.scale(alpha);
+
+
+		if(specularColor.R != 0||specularColor.G != 0||specularColor.B != 0) {
+			Vector reflect = new Vector(normal);
+			reflect = Vector.scaleMult(reflect,2*Vector.dotProduct(lightDir, normal));
+			reflect= Vector.add(reflect, Vector.scaleMult(lightDir, -1));
+			alpha = Vector.dotProduct(visionDir, reflect); 
+			if(alpha <0) {
+				alpha = Math.pow(alpha, mat.PhongSpecularityCoefficient);
+				specularColor.scale(alpha);
+				diffuseColor.updateColor(specularColor, light.specularIntensity);
+			}
+		}
+		diffuseColor.normalise();
+		diffuseColor.mult(light.color);
 		return diffuseColor;
 	}
 
@@ -392,10 +434,9 @@ public class RayTracer {
 	//////////////////////// FUNCTIONS TO SAVE IMAGES IN PNG FORMAT
 	//////////////////////// //////////////////////////////////////////
 
-
 	/*
-	 * Producing a BufferedImage that can be saved as png from a byte array of
-	 * RGB values.
+	 * Producing a BufferedImage that can be saved as png from a byte array of RGB
+	 * values.
 	 */
 	public static BufferedImage bytes2RGB(int width, byte[] buffer) {
 		int height = buffer.length / width / 3;
@@ -410,6 +451,9 @@ public class RayTracer {
 	}
 
 	public static class RayTracerException extends Exception {
+
+		private static final long serialVersionUID = 1L;
+
 		public RayTracerException(String msg) {
 			super(msg);
 		}
