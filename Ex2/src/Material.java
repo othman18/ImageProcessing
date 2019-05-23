@@ -11,6 +11,8 @@ public class Material {
 		PhongSpecularityCoefficient = phong_coe;
 		transparency = transparency_value;
 	}
+	
+	/** copy constructor*/
 	public Material(Material mat) {
 		diffuseColor=mat.diffuseColor;
 		specularColor=mat.specularColor;

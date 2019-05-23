@@ -10,6 +10,5 @@ public class Light {
 		this.specularIntensity = spec_intensity;
 		this.shadowIntensity = shadow_indensity;
 		this.radius = light_rad;
-
 	}
 }
