@@ -1,4 +1,4 @@
-
+ 
 public class Camera {
 	Point position, lookAtPoint;
 	Vector upVector;
