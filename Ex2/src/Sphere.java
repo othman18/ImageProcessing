@@ -2,8 +2,7 @@
 public class Sphere extends Surfaces {
 
 	double radius;
-	Point center;
-	public Point SpherePoint; // used for calculating the normal
+	Point center, intersectionPoint; // used for calculating the normal
 
 	public Sphere(Point center, double radius, int index) {
 		this.center = center;
@@ -13,21 +12,28 @@ public class Sphere extends Surfaces {
 	}
 
 	/** return the intersection point if there is */
-	public double getIntersection(Point p, Vector direction) {
+	public double getIntersection(Point p, Vector rayDirection) {
+		// the variables L and tca were taken from the slides
 		Vector L = new Vector(p, center);
-		double tca = Vector.dotProduct(L, direction);
+		double tca = Vector.dotProduct(L, rayDirection);
 		if (tca < 0)
 			return -1;
 		double d = Vector.dotProduct(L, L) - tca * tca;
-		if (d > radius * radius )
+		if (d > radius * radius)
 			return -1;
 		double t = tca - Math.sqrt(radius * radius - d);
 		return t;
 	}
 
 	
-	public Vector getNormal(Point SpherePoint) {
-		Vector normal = new Vector(center, SpherePoint);
+	public void setIntersectionPoint(Point intersectionPoint) {
+		this.intersectionPoint = intersectionPoint;
+	}
+	
+	
+	/** using the intersectionPoint with the sphere, create the sphere's normal */
+	public Vector getNormal() {
+		Vector normal = new Vector(center, intersectionPoint);
 		normal.normalise();
 		return normal;
 	}
@@ -39,6 +45,4 @@ public class Sphere extends Surfaces {
 	public String toString() {
 		return "Sp.: r=" + radius + ", c=" + center;
 	}
-
-	
-	}
+}

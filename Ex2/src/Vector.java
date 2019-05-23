@@ -3,7 +3,6 @@ public class Vector {
 	public double x = 0.0, y = 0.0, z = 0.0;
 	public double length;
 
-	/** make a specific vector */
 	public Vector(double x, double y, double z) {
 		this.x = x;
 		this.y = y;
@@ -48,13 +47,12 @@ public class Vector {
 		return v3;
 	}
 
-	/** adding tow vectors */
+	/** add two vectors together */
 	public static Vector add(Vector v1, Vector v2) {
 		return new Vector(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
 
 	}
 
-	/** normalise the vector */
 	public void normalise() {
 		length=Math.sqrt(x * x + y * y + z * z);
 		if (length != 0) {
